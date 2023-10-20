@@ -1,0 +1,76 @@
+.Dashboard .ContainerGraficos{
+    grid-template-columns: 33% 33%;
+    grid-template-rows: 30% 70%;
+    grid-template-areas: 
+    "defeitos manutencao regioes"
+    "status horarios horarios";
+}
+
+.cards{
+    justify-content: space-around;
+}
+
+.HardwareGrafico:nth-child(1) {
+    grid-area: defeitos;
+}
+
+.HardwareGrafico:nth-child(2) {
+    grid-area: manutencao;
+}
+
+.HardwareGrafico:nth-child(3) {
+    grid-area: regioes;
+}
+
+.HardwareGrafico:nth-child(4) {
+    grid-area: status;
+    display: flex;
+    flex-direction: column;
+    gap: .75em;
+}
+
+.HardwareGrafico:nth-child(5) {
+    grid-area: horarios;
+}
+
+.status{
+    position: relative;
+    overflow-y: scroll;
+    height: 100%;
+    padding: 1em;
+}
+
+.status h2{
+    position: absolute;
+    top: 0;
+}
+
+.status table{
+    padding: 1em;
+    position: absolute;
+    top: 1.5em;
+}
+
+
+.recomendacao{
+    display: flex;
+    flex-direction: row;
+    gap: .5em;
+    height: 30%;
+}
+
+.recomendacao h3{
+    gap: 10px;
+    display: flex; 
+    align-items: center;
+    text-align: center;
+}
+
+.status-totem{
+    width: 100%;
+}
+
+.status-totem tr td{
+    text-align: center;
+    border: 1px solid black;
+}

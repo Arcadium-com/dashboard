@@ -1,0 +1,78 @@
+.Cadastro{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 2em;
+    background-color: #fff;
+    min-height: 80vh;
+}
+
+.Cadastro .ContainerLabels{
+    display: grid;
+    justify-content: center;
+    gap: 3em;
+    grid-template-columns: repeat(2, 30%);
+    grid-template-rows: repeat(2, 1fr);
+    grid-template-areas: 
+    "label1 label2"
+    "label3 label4"
+    "label5 label6";
+}
+
+.LabelBox{
+    display: flex;
+    flex-direction: column;
+}
+
+.LabelBox label{
+    padding: .5em;
+}
+
+.LabelBox select{
+    padding: .5em;
+    border-radius: 15px;
+    outline: none;
+    border: 2px solid black;
+}
+
+
+.LabelBox input{
+    padding: .5em;
+    border-radius: 15px;
+    outline: none;
+    border: 2px solid black;
+}
+
+.LabelBox:nth-child(1){
+    grid-area: label1;
+}
+.LabelBox:nth-child(2){
+    grid-area: label2;
+}
+.LabelBox:nth-child(3){
+    grid-area: label3;
+}
+.LabelBox:nth-child(4){
+    grid-area: label4;
+}
+.LabelBox:nth-child(5){
+    grid-area: label5;
+}
+.LabelBox:nth-child(6){
+    grid-area: label6;
+}
+
+.ButtonBox{
+    margin-top: 2em;
+    display: flex;
+    justify-content: center;
+}
+
+.ButtonBox button{
+    padding: .5em 3em;
+    background-color: var(--RoxoClaro);
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    color: #fff;
+}

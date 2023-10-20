@@ -1,0 +1,73 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    display: flex;
+}
+
+.MenuVertical{
+    position: relative;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    color: #fff;
+    padding: 2em;
+    width: fit-content;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.MenuVertical .TituloMenu{
+    display: flex;
+    justify-content: center;
+}
+
+.MenuVertical #PaginaAtual{
+    background-image: linear-gradient(to right, var(--RoxoEscuro), var(--RosaClaro));
+}
+
+.MenuVertical .ListaMenu{
+    list-style: none;
+    text-align: center;
+}
+
+.MenuVertical .ListaMenu li{
+    text-align: center;
+    border-radius: 15px;
+}
+
+.MenuVertical .ListaMenu li a{
+    text-align: center;
+    padding: 0 1em;
+    text-align: center;
+    border-radius: 15px;
+}
+
+
+#RoxoBola{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 250px;
+    height: 250px;
+    bottom: -125px;
+    left: -125px;
+    background-color: var(--RoxoBola);
+    border-radius: 50%;
+}
+
+#AzulBola{
+    position: absolute;
+    bottom: 0;
+    width: 125px;
+    height: 125px;
+    bottom: -62.5px;
+    right: 0;
+    z-index: 999;
+    background-color: var(--AzulBola);
+    border-radius: 50%;
+}

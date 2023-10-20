@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Open+Sans:wght@300;800&display=swap');
+@font-face{
+    font-family:  'Gothic';
+    src: url(../../assets/fontes/CenturyGothicPaneuropeanBold.ttf);
+}
+
+:root{
+    --RoxoEscuro: #451459;
+    --RoxoClaro: #8326af;
+    --RosaClaro: #E66CD2;
+    --Critico: #800707;
+    --Ruim: #9F4105;
+    --Alerta: #8F7406;
+    --Bom: #05692A;
+    --CriticoFundo: #EDB1B1;
+    --RuimFundo: #EDAA84;
+    --AlertaFundo: #EDE9B1;
+    --BomFundo: #D4EDB1;
+    --AzulBola: #6CE5E8;
+    --RoxoBola: #750E94;
+}
+
+body{
+    font-family: "Gothic";
+    background-image: linear-gradient(to right, var(--RoxoEscuro), var(--RosaClaro))
+}
+
+a{
+    color: #fff;
+    text-decoration: none;
+}
+
+.erro{
+    color: red;
+}
+
+.center{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2em;
+}
+
+.cards{
+    padding: 1em;
+    border-radius: 10px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.TituloBW{
+    padding: .5em 1em;
+    border-radius: 15px;
+    width: fit-content;
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    background-color: #000;
+    color: #fff;
+}
+
+.TituloRoxo{
+    padding: .5em 1em;
+    border-radius: 15px;
+    width: fit-content;
+    display: flex;
+    gap: 1em;
+    align-items: center;
+    background-color: var(--RoxoClaro);
+    color: #fff;
+}
+
+.TituloBW img{
+    height: 50px;
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+.Container{
+    width: 100%;
+    padding: 1em;
+    height: 100%;
+}
+
+
+h1, h2{
+    margin: 0;
+}
+
+.TituloBW h1{
+    margin: 0;
+}
+
+.TituloRoxo h1{
+    margin: 0;
+}
+
+.Dashboard{
+    width: 100%;
+    padding: 1em;
+    overflow-y: scroll;
+}
+
+.Dashboard .LegendaAlertas{
+    margin-top: .5em;
+    list-style: none;
+    font-size: 1.5em;
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.Dashboard .LegendaAlertas li{
+    display: flex;
+    justify-content: center;  
+    gap: .5em;
+    width: 25%;
+    padding: .25em 1em;
+    border-radius: 5px;
+}
+
+.Dashboard .ContainerGraficos{
+    margin-top: 1em;
+    height: 100%;
+    width: 100%;
+    display: grid;
+    gap: .75em;
+}
