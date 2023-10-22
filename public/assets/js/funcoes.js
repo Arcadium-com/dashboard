@@ -15,7 +15,29 @@ function criarGraficoFuncionario(){
 
   new Chart(horariosPico.html, {
     type: "line",
-    data: data 
+    data: data,
+    options: {
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 23,
+          title: {
+            display: true,
+            text: "Horários"
+          }
+        },
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: "Quantidade de problemas por hora"
+          },
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
   });
 
 }
