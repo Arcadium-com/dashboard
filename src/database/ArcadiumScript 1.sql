@@ -77,7 +77,7 @@ logErro varchar(300)
 
 CREATE TABLE dados (
 dt_hora DATETIME ,
-valorDisco DECIMAL (5,2),
+valorDisco DOUBLE,
 valorMemoriaRAM DECIMAL (5,2),
 valorCPU DECIMAL (5,2),
 USB INT,
