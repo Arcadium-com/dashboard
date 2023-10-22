@@ -63,7 +63,8 @@ function criarGraficoSuporte() {
     html: document.getElementById("usb"),
     titulo: "Quantidade de entradas USB conectadas",
     titulosEixos: {x: "Horário", y: "Quantidade de USB conectados"},
-    mock: [3, 4, 4, 3, 3, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 4]
+    mock1: [1, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2],
+    mock2: [1, 2, 1, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 2, 2]
   };
   const cpu = {
     html: document.getElementById("cpu"),
@@ -198,8 +199,12 @@ function criarGraficoSuporte() {
         labels: horarioComercial,
         datasets: [
           {
-            label: grafico.titulo,
-            data: grafico.mock
+            label: "Máquina 1",
+            data: grafico.mock1
+          },
+          {
+            label: "Máquina 2",
+            data: grafico.mock2
           }
         ]
       },
