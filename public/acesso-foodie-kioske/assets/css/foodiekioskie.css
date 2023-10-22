@@ -1,0 +1,100 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url(../img/background-foodie.png);
+    background-size: cover;
+}
+
+.container {
+    margin-top: 8vh;
+    width: 80%;
+    height: 80vh;
+    display: flex;
+    background-color: #fff;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.212);
+    border-radius: 30px; 
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 3rem;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    background-color: #17caca;
+    border-radius: 30px;
+    width: 30rem;
+    justify-content: center;
+}
+
+.p{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+img{
+    width: 40%;
+}
+
+.continue-button button {
+    margin-top: 1rem;
+    width: 30rem;
+    border: none;
+    background-color: #831185;
+    padding: 0.62rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.continue-button button:hover {
+    background-color: #c80cc8f1;
+}
+
+.continue-button button a {
+    text-decoration: none;
+    font-size: 0.93rem;
+    font-weight: 500;
+    color: #fff;
+}
+
+@media screen and (max-width: 1330px) {
+    .container {
+        width: 50%;
+    }
+    .title {
+        width: 26rem;
+    }
+}
+
+@media screen and (max-width: 1064px) {
+    .container {
+        width: 90%;
+        height: auto;
+    }
+    .input-group {
+        flex-direction: column;
+        z-index: 5;
+        padding-right: 5rem;
+        max-height: 10rem;
+        overflow-y: scroll;
+        flex-wrap: nowrap;
+    }
+    .login-button button {
+        padding: 0.5rem;
+    }
+}

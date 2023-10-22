@@ -40,107 +40,219 @@ function criarGraficoFuncionario(){
 }
 
 function criarGraficoSuporte() {
+  const horarioComercial = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+
   const disco = {
     html: document.getElementById("disco"),
     titulo: "Uso do disco",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulosEixos: {x: "Horário", y: "Percentual de uso"},
+    mock1: [85, 72, 94, 60, 45, 78, 92, 88, 67, 70, 30, 50, 75, 63, 42, 55],
+    mock2: [80, 68, 90, 79, 87, 58, 65, 98, 40, 73, 83, 95, 62, 77, 91, 54]
   };
   const memoria = {
     html: document.getElementById("memoria"),
     titulo: "Uso da memória",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulosEixos: {x: "Horário", y: "Percentual de uso"},
+    mock1: [60, 72, 88, 50, 45, 78, 92, 68, 70, 75, 80, 90, 85, 63, 82, 55],
+    mock2: [73, 78, 65, 79, 87, 58, 95, 98, 40, 73, 83, 95, 62, 77, 89, 57]
   };
   const usb = {
     html: document.getElementById("usb"),
-    titulo: "Estado da entrada USB",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulo: "Quantidade de entradas USB conectadas",
+    titulosEixos: {x: "Horário", y: "Quantidade de USB conectados"},
+    mock: [3, 4, 4, 3, 3, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 4]
   };
   const cpu = {
     html: document.getElementById("cpu"),
     titulo: "Uso do processador",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulosEixos: {x: "Horário", y: "Percentual de uso"},
+    mock1: [70, 62, 88, 45, 65, 58, 72, 68, 80, 55, 40, 50, 75, 53, 82, 45],
+    mock2: [83, 78, 60, 69, 77, 58, 85, 98, 70, 73, 63, 85, 92, 87, 64, 76]
   };
   const qtdHoras = {
     html: document.getElementById("qtd-horas"),
     titulo: "Quantidade de horas de uso do aparelho",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulosEixos: {x: "Dias do mês", y: "Quantidade de problemas"},
+    mock: [93, 28, 51, 17, 69, 88, 37, 42, 64, 79, 94, 22, 55, 87, 41, 99]
   };
   const statusTotem = {
     html: document.getElementById("status-totem"),
     titulo: "Status do totem",
-    label: [formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto"), formatData("horaminuto")],
+    titulosEixos: {x: "Horário", y: "Percentual de uso"},
+    mock: [93, 28, 51, 17, 69, 88, 37, 42, 64, 79, 94, 22, 55, 87, 41, 99]
   };
   const horariosUso = {
     html: document.getElementById("horarios-uso"),
     titulo: "Horários de maior requisição de recurso",
-    label: [formatData(), formatData(), formatData(), formatData(), formatData(), formatData()],
+    titulosEixos: {x: "Horário", y: "Percentual de uso"},
+    mock: [93, 28, 51, 17, 69, 88, 37, 42, 64, 79, 94, 22, 55, 87, 41, 99]
   };
 
-  const graficos = [
-    disco,
-    memoria,
+  const graficosBarra = [
     usb,
-    cpu,
-    qtdHoras,
     statusTotem,
     horariosUso,
   ];
 
-  for (var grafico of graficos) {
+  const graficosLinha = [
+    disco,
+    memoria,
+    cpu
+  ]
+
+  const graficoSB = [
+    qtdHoras
+  ]
+
+  for(var grafico of graficoSB){
+    new Chart(grafico.html,
+      {
+        type: 'line',
+        data: {
+          labels: getQuantidadeDiasMes("array"),
+          datasets: [
+            {
+              label: "CPU",
+              data: gerarArrayMock(getQuantidadeDiasMes("int"))
+            },
+            {
+              label: "RAM",
+              data: gerarArrayMock(getQuantidadeDiasMes("int"))
+            },
+            {
+              label: "Disco",
+              data: gerarArrayMock(getQuantidadeDiasMes("int"))
+            }
+          ]
+        },
+        options: {
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              title: {
+                display: true,
+                text: grafico.titulosEixos.x
+              },
+              ticks: {
+                stepSize: 1
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: grafico.titulosEixos.y
+              }
+            }
+          }
+        }
+      })
+  }
+
+  for(var grafico of graficosLinha){
     new Chart(grafico.html, {
-      type: "bar",
+      type: 'line',
       data: {
-        labels: grafico.label,
+        labels: horarioComercial,
         datasets: [
           {
-            label: grafico.titulo,
-            data: [12, 19, 3, 5, 2, 3],
-            borderWidth: 1,
+            label: "Máquina 1",
+            data: grafico.mock1,  
           },
-        ],
+          {
+            label: "Máquina 2",
+            data: grafico.mock2,
+          }
+        ]
       },
       options: {
         scales: {
+          x: {
+            beginAtZero: true,
+            max: 23,
+            title: {
+              display: true,
+              text: grafico.titulosEixos.x
+            }
+          },
           y: {
             beginAtZero: true,
-          },
-        },
+            max: 100,
+            title: {
+              display: true,
+              text: grafico.titulosEixos.y
+            }
+          }
+        }
+      }
+    }) 
+  }
+
+  for (var grafico of graficosBarra) {
+    new Chart(grafico.html, {
+      type: 'bar',
+      data: {
+        labels: horarioComercial,
+        datasets: [
+          {
+            label: grafico.titulo,
+            data: grafico.mock
+          }
+        ]
       },
+      options: {
+        scales: {
+          x: {
+            beginAtZero: false,
+            min: 8,
+            max: 23,
+            title: {
+              display: true,
+              text: grafico.titulosEixos.x
+            }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: (grafico.titulo.indexOf("USB") != -1) ? 1 : 10,
+              max:  (grafico.titulo.indexOf("USB") != -1) ? 4 : 100,
+            },
+            title: {
+              display: true,
+              text: grafico.titulosEixos.y
+            }
+          }
+        }
+      }
     });
   }
 }
 
-function formatData(parametro="datahora"){
-  const dataAtual = new Date();
-  let opcoes;
-  switch(parametro){
-    case "datahora":
-      opcoes = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-      break;
-      case "horaminuto":
-      opcoes = {hour: "2-digit", minute: "2-digit"}
-      break;
+function getQuantidadeDiasMes(tipo){
+  let date = new Date();
+  let ano = date.getFullYear();
+  let mes = date.getMonth() + 1;
+  switch(tipo){
+    case "int":
+      return new Date(ano, mes, 0).getDate()
+    case "array":
+      var diasMes = [];
+      for(let i = 1; i <= getQuantidadeDiasMes("int"); i++){
+        diasMes.push(i);
+      }
+      return diasMes;
   }
-  const dataFormatada = dataAtual.toLocaleString('pt-BR', opcoes);
-  return dataFormatada;
 }
 
-function validators(campo, tipoValidacao){
-  var mensagemErro = document.createElement('h6');
-  switch(tipoValidacao){
-    case "required":
-      if(campo.length > 0){
-
-        return true;
-      }else{
-        if(campo.html.parentNode.childNodes.length <= 5){ //childNodes por padrão começa com 5, não sei pq
-          mensagemErro.className = "erro";
-          mensagemErro.textContent = "Campo vázio!!";
-          campo.html.parentNode.appendChild(mensagemErro);  
-        }
-        return false;
-      }
-    case "email":
-      return campo.valor.indexOf("@") != -1;   
+function gerarArrayMock(quantidadeDias){
+  let mock = [];
+  let problemasIniciais = Math.floor(Math.random() * 7);
+  for(let i = 1; i <= quantidadeDias; i++){
+    let aumentaOuNao = Math.floor(Math.random() * 2);
+    if(aumentaOuNao == 1){
+      problemasIniciais++
+    }
+    mock.push(problemasIniciais)
   }
+  return mock;
 }

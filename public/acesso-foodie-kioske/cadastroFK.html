@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/cadastro.css">
+    <link rel="stylesheet" href="assets/css/cabecalho.css">
+    <link rel="stylesheet" href="assets/css/rodape.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/7ac0278b37.js" crossorigin="anonymous"></script>
+    <title>Cadastro Foodie Kioskie</title>
+</head>
+<body>
+    <header class="Cabecalho">
+        <div class="Logo">
+            <img src="./assets/img/logos.jpeg" class="img-logos-cab">
+        </div>
+        <ul class="ListaHeader">
+            <a href="../index.html">
+                <li>SAIBA MAIS</li>
+            </a>
+            <a href="./cadastroFK.html">
+                <li>CADASTRO</li>
+            </a>
+            <a href="./loginFK.html">
+                <li>ENTRAR</li>
+            </a>
+    </header>
+    <div class="container">
+        <div class="form-image">
+            <img src="assets/img/cadDash.png" alt="">
+        </div>
+        <div class="form">
+            <div>
+                <div class="form-header">
+                    <div class="title">
+                        <h1>CADASTRE-SE</h1>
+                    </div>
+                    <div class="login-button">
+                        <button><a href="./loginFK.html">Entrar</a></button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-box">
+                        <label for="nomeResponsavel">Nome Responsável:</label>
+                        <input id="input_nomeResponsavel" type="text" name="nomeResponsavel"
+                            placeholder="Digite responsável pela empresa" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="nomeFantasia">Nome Fantasia:</label>
+                        <input id="input_nomeFantasia" type="text" name="nomeFantasia"
+                            placeholder="Digite nome fanstasia" required>
+                    </div>
+                    <div class="input-box">
+                        <label for="cnpj">CNPJ:</label>
+                        <input id="input_cnpj" type="text" name="cnpj" placeholder="00.000.000/0000-00" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="telefone">Telefone:</label>
+                        <input id="input_telefone" type="tel" name="telefone" placeholder="(00) 0000-0000" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="cep">CEP:</label>
+                        <input id="input_cep" type="number" name="cep" placeholder="00000-000" required
+                            onchange="showEndereco()">
+                    </div>
+
+                    <div class="input-box">
+                        <label for="tipoLogradouro">Tipo do Logradouro:</label>
+                        <input id="input_tipoLogradouro" type="text" name="tipoLogradouro"
+                            placeholder="Digite tipo do logradouro" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="logradouro">Logradouro:</label>
+                        <input id="input_logradouro" type="text" name="logradouro"
+                            placeholder="Digite logradouro da empresa" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="numeroLogradouro">Número Logradouro:</label>
+                        <input id="input_numeroLogradouro" type="text" name="numeroLogradouro"
+                            placeholder="Digite número logradouro" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="complemento">Complemento:</label>
+                        <input id="input_complemento" type="text" name="complemento" placeholder="Digite complemento"
+                            required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="bairro">Bairro:</label>
+                        <input id="input_bairro" type="text" name="bairro" placeholder="Digite o bairro da empresa"
+                            required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="cidade">Cidade:</label>
+                        <input id="input_cidade" type="text" name="cidade" placeholder="Digite cidade da empresa"
+                            required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="estado">Estado:</label>
+                        <select required id="input_estado">
+                            <option value="" disabled selected>Estado</option>
+                            <option value="1">Acre</option>
+                            <option value="2">Alagoas</option>
+                            <option value="3">Amapá</option>
+                            <option value="4">Amazonas</option>
+                            <option value="5">Bahia</option>
+                            <option value="6">Ceará</option>
+                            <option value="7">Distrito Federal</option>
+                            <option value="8">Espírito Santo</option>
+                            <option value="9">Goiás</option>
+                            <option value="10">Maranhão</option>
+                            <option value="11">Mato Grosso</option>
+                            <option value="12">Mato Grosso do Sul</option>
+                            <option value="13">Minas Gerais</option>
+                            <option value="14">Pará</option>
+                            <option value="15">Paraíba</option>
+                            <option value="16">Paraná</option>
+                            <option value="17">Pernambuco</option>
+                            <option value="18">Piauí</option>
+                            <option value="19">Rio de Janeiro</option>
+                            <option value="20">Rio Grande do Norte</option>
+                            <option value="21">Rio Grande do Sul</option>
+                            <option value="22">Rondônia</option>
+                            <option value="23">Roraima</option>
+                            <option value="24">Santa Catarina</option>
+                            <option value="25">São Paulo</option>
+                            <option value="26">Sergipe</option>
+                            <option value="27">Tocantins</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="continue-button">
+                    <button onclick="cadastrar()">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="Rodape">
+        <img src="./assets/img/logos.jpeg" class="img-logos">
+        <ul class="ListaRedeSocial">
+            <li class="ItemLista">
+                <i class="fa-brands fa-instagram fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium_technology</p>
+            </li>
+            <li class="ItemLista">
+                <i class="fa-brands fa-facebook fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium_technology</p>
+            </li>
+            <li class="ItemLista">
+                <i class="fa-brands fa-github fa-2xl" style="color: #720d87;"></i>
+                <p>arcadium-com</p>
+            </li>
+            <li class="ItemLista">
+                <i class="fa-solid fa-envelope fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium.technology@gmail.com</p>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    async function cadastrar() {
+        var empresa = {
+            nomeResponsavel: input_nomeResponsavel.value,
+            nomeFantasia: input_nomeFantasia.value,
+            cnpj: input_cnpj.value,
+            telefone: input_telefone.value,
+            cep: input_cep.value,
+            tipoLogradouro: input_tipoLogradouro.value,
+            logradouro: input_logradouro.value,
+            numeroLogradouro: input_numeroLogradouro.value,
+            complemento: input_complemento.value,
+            bairro: input_bairro.value,
+            cidade: input_cidade.value,
+            idEstado: input_estado.value,
+        };
+        console.log(empresa)
+        if (empresa.nomeResponsavel == "" || empresa.nomeFantasia == "" || empresa.cnpj == "" || empresa.tipoLogradouro == "" || empresa.cep == "" || empresa.logradouro == "" || empresa.bairro == "" || empresa.cidade == "" || empresa.idEstado == "" || empresa.tel == "" || empresa.email == "" || empresa.numeroLogradouro == "" || empresa.complemento == "") {
+            Swal.fire({
+                title: 'Campos em branco!',
+                icon: 'error',
+                timer: 3000, // Tempo de exibição do toast em milissegundos
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false
+            })
+        } else {
+            event.preventDefault();
+            fetch(`/empresas/cadastrar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    credenciaisJSON: empresa
+                })
+            }).then((resposta) => {
+                console.log(resposta)
+                if(resposta.ok){
+                    Swal.fire({
+                    title: 'Deu certo!',
+                    icon: 'success',
+                    timer: 3000, // Tempo de exibição do toast em milissegundos
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                    })
+                }else{
+                    Swal.fire({
+                    title: 'Ops, algo deu errado!',
+                    icon: 'error',
+                    timer: 3000, // Tempo de exibição do toast em milissegundos
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                    })
+                }
+            })
+        }
+    }
+
+    var URL = 'https://viacep.com.br/ws';
+    async function showEndereco() {
+        var cep = input_cep.value;
+        var endereco = await getEndereco(cep);
+        input_logradouro.value = endereco.logradouro;
+        input_cidade.value = endereco.localidade;
+        input_bairro.value = endereco.bairro;
+    }
+
+    async function getEndereco(cep) {
+        var resposta = await fetch(`${URL}/${cep}/json`);
+        var json = await resposta.json();
+        return json;
+    }
+
+</script>

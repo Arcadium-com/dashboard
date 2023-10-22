@@ -32,7 +32,7 @@ CREATE TABLE Empresa (
 
 CREATE TABLE Usuario (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  email VARCHAR (60) NOT NULL,
+  email VARCHAR (60) NOT NULL UNIQUE, 
   senha VARCHAR (60) NOT NULL,
   fkPermissao INT,
   fkEmpresa INT,
@@ -116,9 +116,9 @@ INSERT INTO Estado (sigla) VALUES
 ('TO');
 
 INSERT INTO Permissao (autoridade) VALUES 
-('Administrador 777'),
+('Administrador Total'),
 ('Administrador Técnico'),
-('AdmUser'),
+('FuncUser'),
 ('TecUser');
 
 INSERT INTO empresa Values

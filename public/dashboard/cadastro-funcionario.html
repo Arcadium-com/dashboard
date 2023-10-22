@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../assets/css/padroes.css">
+    <link rel="stylesheet" href="../assets/css/menu.css">
+    <link rel="stylesheet" href="../assets/css/cadastro.css">
+    <script src="https://kit.fontawesome.com/7ac0278b37.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav class="MenuVertical">
+        <p class="TituloMenu">MENU</p>
+        <p id="Acesso">Nível</p>
+        <ul class="ListaMenu">
+            <li><a id="DashboardFuncionario" href="dashboard-funcionario.html">DashboardF</a></li>
+            <li><a id="DashboardSuporte" href="dashboard-suporte.html">DashboardS</a></li>
+            <li><a id="CadastroUsuarios" class="PaginaAtual" href="cadastro-funcionario.html">Usuários</a></li>
+        </ul>
+        <span id="AzulBola"></span>
+        <span id="RoxoBola"></span>
+    </nav>
+    <main class="Container">
+        <span class="TituloBW">
+            <img src="../assets/imagens/icones/usuario.png" alt="">
+            <h1>USUÁRIOS</h1>
+        </span>
+        <div class="Cadastro Container">
+            <h2 class="TituloRoxo">CADASTRAR USUÁRIOS</h2>
+            <div class="ContainerLabels">
+                <span class="LabelBox">
+                    <label for="NomeCompleto">NOME COMPLETO</label>
+                    <input id="NomeCompleto" type="text">
+                </span>
+                <!-- <span class="LabelBox">
+                    <label for="Cargo">CARGO</label>
+                    <select id="Cargo" type="text">
+                        <option value=""></option>
+                    </select>
+                </span> -->
+                <span class="LabelBox">
+                    <label for="Permissao">TIPO DE PERMISSÃO</label>
+                    <select id="Permissao" type="text">
+                    </select>
+                </span>
+                <span class="LabelBox">
+                    <label for="Email">EMAIL</label>
+                    <input id="Email" type="text">
+                </span>
+                <span class="LabelBox">
+                    <label for="Senha">SENHA</label>
+                    <input id="Senha" type="password">
+                </span>
+                <span class="LabelBox">
+                    <label for="ConfirmaSenha">CONFIRMAR SENHA</label>
+                    <input id="ConfirmaSenha" type="password">
+                </span>
+            </div>
+            <div class="ButtonBox">
+                <button onclick="cadastrar()">SALVAR</button>
+         </div>
+        </div>
+    </main>
+</body>
+<script src="../assets/js/funcoes.js"></script>
+<script src="../assets/js/service.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>   
+    let permissao = sessionStorage.getItem("PERMISSAO")
+    if(permissao != 1 && permissao != 2){
+        window.location.href = "../index.html"
+    }
+    puxarPermissoes()
+    function cadastrar(){
+        let cadastro = {
+            nome: document.querySelector("#NomeCompleto").value,
+            permissao: document.querySelector("#Permissao").value,
+            email: document.querySelector("#Email").value,
+            senha: document.querySelector("#Senha").value,
+            confirmaSenha: document.querySelector("#ConfirmaSenha").value,
+            fkEmpresa: sessionStorage.getItem("ID_EMPRESA")
+        }
+        let formularioValido;
+        let erros = ""
+
+        for(var chave of Object.keys(cadastro)){
+            console.log(chave)
+            if(cadastro[chave] == undefined || cadastro[chave] == ""){
+                erros += `• Campo "${chave}" inválido\n`
+            }else if(chave == "email"){
+                if((cadastro[chave]).indexOf("@") == -1){
+                    erros += `• Campo "email" inválido\n`
+                }
+            }else if(chave == "confirmaSenha"){
+                console.log("é confirmaSenha ")
+                if(cadastro.confirmaSenha != cadastro.senha){
+                    erros += `• Campo "confirmação de senha" inválido\n`
+                }
+            }
+        }
+
+        if(erros.length <= 0){
+            fetch(`/usuarios/cadastrar`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    credenciaisJSON: cadastro
+                })
+            }).then((resposta) => {
+                console.log(resposta)
+                if(resposta.ok){
+                    Swal.fire({
+                    title: 'Deu certo!',
+                    icon: 'success',
+                    timer: 3000, // Tempo de exibição do toast em milissegundos
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                    })
+                }else{
+                    Swal.fire({
+                    title: 'Ops, algo deu errado!',
+                    icon: 'error',
+                    timer: 3000, // Tempo de exibição do toast em milissegundos
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false
+                    })
+                }
+            })
+        }else{
+            Swal.fire({
+                title: erros,
+                icon: 'error',
+                timer: 3000, // Tempo de exibição do toast em milissegundos
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false
+            })
+        }
+    }
+ 
+</script>

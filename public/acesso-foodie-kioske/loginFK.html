@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/login.css">
+    <link rel="stylesheet" href="assets/css/cabecalho.css">
+    <link rel="stylesheet" href="assets/css/rodape.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;900&display=swap" rel="stylesheet">
+    <title>Login Foodie Kioskie</title>
+</head>
+
+<body>
+    <header class="Cabecalho">
+        <div class="Logo">
+            <img src="./assets/img/logos.jpeg" class="img-logos-cab">
+            </div>
+        <ul class="ListaHeader">
+            <a href="../index.html"><li>SAIBA MAIS</li></a>
+            <a href="./cadastroFK.html"><li>CADASTRO</li></a>
+            <a href="./loginFK.html"><li>ENTRAR</li></a>
+    </header>
+    <div class="container">
+        <div class="form">
+            <div>
+                <div class="form-header">
+                    <div class="title">
+                        <h1>Entrar</h1>
+                    </div>
+                    <div class="login-button">
+                        <button><a href="./cadastroFK.html">Cadastrar</a></button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-box">
+                        <label for="email">E-mail:</label>
+                        <input id="input_email" type="text" name="email" placeholder="Digite e-mail do usuário" required>
+                    </div>
+
+                    <div class="input-box">
+                        <label for="senha">Senha:</label>
+                        <input id="input_senha" type="password" name="senha" placeholder="Digite senha do usuário" required>
+                    </div>
+
+                </div>
+
+                <div class="continue-button">
+                    <button onclick="login()">Entrar</button>
+                </div>
+            </div>
+        </div>
+        <div class="form-image">
+            <img src="assets/img/logDash.png" alt="">
+        </div>
+    </div>
+    <div id="Rodape">
+            <img src="./assets/img/logos.jpeg" class="img-logos">
+        <ul class="ListaRedeSocial">
+            <li class="ItemLista">
+                <i class="fa-brands fa-instagram fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium_technology</p></li>
+            <li class="ItemLista">
+                <i class="fa-brands fa-facebook fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium_technology</p>
+            </li>
+            <li class="ItemLista">
+                <i class="fa-brands fa-github fa-2xl" style="color: #720d87;"></i>
+                <p>arcadium-com</p>
+            </li>
+            <li class="ItemLista">
+                <i class="fa-solid fa-envelope fa-2xl" style="color: #720d87;"></i>
+                <p class="st ag">arcadium.technology@gmail.com</p>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function login() {
+        var cadastro = {
+            email: input_email.value,
+            senha: input_senha.value
+        }
+
+        fetch("/usuarios/autenticar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                credenciaisJSON: cadastro
+            })
+        }).then(function (resposta) {
+            console.log(resposta)
+            if (resposta.ok) {
+                resposta.json().then(json => {
+                    if(json.length != 0){
+                        sessionStorage.EMAIL_USUARIO = json[0].email;
+                        sessionStorage.ID_USUARIO = json[0].id;
+                        sessionStorage.PERMISSAO = json[0].fkPermissao;
+                        sessionStorage.ID_EMPRESA = json[0].fkEmpresa;
+                        Swal.fire({
+                            title: 'Autenticado com sucesso!',
+                            icon: 'success',
+                            timer: 3000, // Tempo de exibição do toast em milissegundos
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false
+                        })
+                        if(sessionStorage.getItem("PERMISSAO") == 1 || sessionStorage.getItem("PERMISSAO") == 2 || sessionStorage.getItem("PERMISSAO") == 4){
+                            setTimeout(window.location = '../../dashboard/dashboard-suporte.html', 3000)
+                        }else{
+                            setTimeout(window.location = '../../dashboard/dashboard-funcionario.html', 3000)
+                        }
+                    }else{
+                        Swal.fire({
+                        title: 'E-mail e/ou senha inválidos',
+                        icon: 'error',
+                        timer: 3000, // Tempo de exibição do toast em milissegundos
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false
+                    })
+                    }
+                });
+            } else {
+                resposta.text().then(texto => {
+                    Swal.fire({
+                        title: 'Ops, algo de errado aconteceu!',
+                        icon: 'error',
+                        timer: 3000, // Tempo de exibição do toast em milissegundos
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false
+                    })
+                });
+            }
+
+        }).catch(function (erro) {
+            console.log(erro);
+        })
+
+        return false;
+    }
+</script>

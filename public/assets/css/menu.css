@@ -5,6 +5,7 @@
 }
 
 body{
+    height: 100vh;
     display: flex;
 }
 
@@ -17,7 +18,7 @@ body{
     color: #fff;
     padding: 2em;
     width: fit-content;
-    min-height: 100vh;
+    height: 100vh;
     overflow: hidden;
 }
 
@@ -26,7 +27,7 @@ body{
     justify-content: center;
 }
 
-.MenuVertical #PaginaAtual{
+.MenuVertical .PaginaAtual{
     background-image: linear-gradient(to right, var(--RoxoEscuro), var(--RosaClaro));
 }
 
@@ -37,16 +38,23 @@ body{
 
 .MenuVertical .ListaMenu li{
     text-align: center;
-    border-radius: 15px;
 }
 
 .MenuVertical .ListaMenu li a{
     text-align: center;
     padding: 0 1em;
-    text-align: center;
     border-radius: 15px;
 }
 
+#Acesso{
+    text-align: center;
+}
+
+.destaque{
+    background: var(--RosaClaro);
+    padding: 2px 10px;
+    border-radius: 15px;
+}
 
 #RoxoBola{
     position: absolute;

@@ -1,0 +1,86 @@
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+.img-logos {
+    margin: 4rem;
+    width: 20%;
+}
+
+#Rodape{      
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;    
+    width: 100%;
+    height: 30vh;
+    background-color: black;
+    color: white;
+    margin-top: 4vh;
+    padding: 2rem;
+    justify-content: center;
+    }
+
+    #Rodape .ListaRedeSocial{
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+    }
+    #Rodape .ListaRedeSocial .ItemLista{
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        padding: 2em;
+    }
+
+    @media screen and (max-width: 1330px) {
+        #Rodape{
+            width: auto;
+            height: auto;
+            display: flex;
+            flex-direction: column; 
+        }
+    
+        .img-logos {
+            margin: 0;
+            width: 30%;
+        }      
+        
+        #Rodape .ListaRedeSocial .ItemLista{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            word-wrap: break-word;
+        }
+    
+        #Rodape .ListaRedeSocial .ItemLista p{
+            max-width: 100%;
+        }
+    }
+
+    @media screen and (max-width: 1064px) {
+        #Rodape{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            /* padding: 2em; */
+        }
+    
+        .img-logos {
+            width: 20%;
+        }      
+        
+        #Rodape .ListaRedeSocial .ItemLista{
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            padding: 2em;
+            word-wrap: break-word;
+        }
+    
+        #Rodape .ListaRedeSocial .ItemLista p{
+            max-width: 100%;
+        }
+    }
