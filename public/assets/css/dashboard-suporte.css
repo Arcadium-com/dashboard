@@ -1,10 +1,9 @@
 .Dashboard .ContainerGraficos{
     grid-template-columns: 30% 30% auto;
-    grid-template-rows: 30% 30% auto;
+    grid-template-rows: 40% 40%;
     grid-template-areas:    
     "disco memoria grande"
     "usb cpu grande"
-    "status horas horas";
 }
 
 
