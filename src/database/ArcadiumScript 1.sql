@@ -1,6 +1,4 @@
-create user 'arcadium'@'localhost' identified by '123';
-grant all on *.* to 'arcadium'@'localhost';
-
+DROP DATABASE Arcadium;
 CREATE DATABASE Arcadium;
 USE Arcadium;
 CREATE TABLE Estado(
@@ -32,7 +30,7 @@ CREATE TABLE Empresa (
 
 CREATE TABLE Usuario (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  email VARCHAR (60) NOT NULL UNIQUE, 
+  email VARCHAR (60) NOT NULL,
   senha VARCHAR (60) NOT NULL,
   fkPermissao INT,
   fkEmpresa INT,
@@ -60,6 +58,7 @@ versionamento VARCHAR(20) NOT NULL
 
 CREATE TABLE totem (
 id INT PRIMARY KEY AUTO_INCREMENT,
+fkempresa INT, CONSTRAINT fkemp FOREIGN KEY (fkempresa) REFERENCES Empresa(id),
 fkindicadores INT, CONSTRAINT fkindic FOREIGN KEY (fkindicadores) REFERENCES Indicadores(id),
 fkstatus INT, CONSTRAINT fkstat FOREIGN KEY (fkstatus) REFERENCES statusTotem(id),
 fksistemaoperacional INT, CONSTRAINT fkso FOREIGN KEY (fksistemaoperacional) REFERENCES sistemaOperacional(id),
@@ -67,7 +66,8 @@ dtInstalacao DATE,
 RAMtotal INT,
 CPUtotal DECIMAL(5,2),
 DISCOtotal INT,
-USB tinyint(1)
+USB tinyint(1),
+enderecoMAC varchar(45)
 );
 
 CREATE TABLE logErro (
