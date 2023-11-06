@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 
-var empresaController = require("../controllers/dadosController");
+var dadosController = require("../controllers/dadosController");
 
 //Recebendo os dados do html e direcionando para a função cadastrar de usuarioController.js
 router.get("/puxarDadosCpu/:idTotem", function (req, res) {
@@ -20,14 +20,12 @@ router.get("/puxarDadosUsb/:idTotem", function(req, res){
     dadosController.puxarDadosUsb(req, res);
 })
 
-router.get("/puxarStatusTotem", function(req, res){
-    dadosController.puxarStatusTotem(req, res);
+router.get("/puxarStatusTotens", function(req, res){
+    dadosController.puxarStatusTotens(req, res);
 })
 //
 router.get("/puxarTotensForaServico", function(req, res){
-    
+    dadosController.puxarTotensForaServico(req, res);
 })
-
-
 
 module.exports = router;

@@ -59,5 +59,44 @@ function detectarPermissao(){
     }
 }
 
+function puxarStatusTotens(){
+    let elementoHTML = document.querySelector(".status-totem");
+    fetch("/dados/puxarStatusTotens")
+    .then(response => {
+        console.log(response)
+        if(response.ok){
+            response.json().then(resposta => {
+                resposta.forEach(element => {
+                    let linhaTabela = document.createElement("tr")
+                    let itemTabela1 = document.createElement("td"); itemTabela1.textContent = element.id;
+                    let itemTabela2 = document.createElement("td"); itemTabela2.textContent = element.statusTotem;
+                    linhaTabela.append(itemTabela1, itemTabela2);
+                    elementoHTML.append(linhaTabela);
+                });
+            });
+        }else{
+            console.log("erro");
+        }
+    }).catch(error => console.log(error))
+}
+
+function puxarTotensFora(){
+    let elementoHTML = document.querySelector("#TotensFora")
+    fetch("/dados/puxarTotensForaServico")
+    .then(response => {
+        if(response.ok){
+            response.json().then(response => {
+                if(response[0].totalFora <= 1){
+                    elementoHTML.textContent = "1 totem"
+                }else{
+                    elementoHTML.textContent = `${response[0].totalFora} totens`
+                }
+            })
+        }else{
+            console.log('erro');
+        }
+    }).catch(error => console.log(error))
+}
+
 detectarPermissao()
 puxarNomePermissao()

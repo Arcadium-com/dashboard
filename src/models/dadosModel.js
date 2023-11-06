@@ -24,9 +24,23 @@ function puxarDadosUsb(idTotem){
     return database.executar(instrucao);
 }
 
+function puxarStatusTotens(){
+    var instrucao = "select totem.id, statusTotem from totem join statustotem on fkstatus = statustotem.id;"
+    console.log(`executando ${instrucao}`);
+    return database.executar(instrucao);
+}   
+
+function puxarTotensForaServico(){
+    var instrucao = "select count(*) as totalFora from totem where fkstatus = 2;" // quantidade de totens inativos ou em manutenção
+    console.log(`executando ${instrucao}`);
+    return database.executar(instrucao);
+}
+
 module.exports = {
     puxarDadosCpu,
     puxarDadosRam,
     puxarDadosDisco,
     puxarDadosUsb,
+    puxarStatusTotens,
+    puxarTotensForaServico
 }

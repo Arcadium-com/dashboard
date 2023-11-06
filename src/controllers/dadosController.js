@@ -16,6 +16,7 @@ function puxarDadosCpu(req, res){
         }
     );
 }
+
 function puxarDadosRam(req, res){
     var maquina = req.params.idTotem;
     dadosModel.puxarDadosRam(idTotem).then(function (resultado) {
@@ -32,6 +33,7 @@ function puxarDadosRam(req, res){
         }
     );
 }
+
 function puxarDadosDisco(req, res){
     var maquina = req.params.idTotem;
     dadosModel.puxarDadosDisco(idTotem).then(function (resultado) {
@@ -48,9 +50,42 @@ function puxarDadosDisco(req, res){
         }
     );
 }
+
 function puxarDadosUsb(req, res){
     var maquina = req.params.idTotem;
     dadosModel.puxarDadosUsb(idTotem).then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(
+        function (erro) {
+            console.log(erro);
+            console.log("Houve um erro ao realizar a consulta! Erro: ", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        }
+    );
+}
+
+function puxarStatusTotens(req, res){
+    dadosModel.puxarStatusTotens().then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(
+        function (erro) {
+            console.log(erro);
+            console.log("Houve um erro ao realizar a consulta! Erro: ", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        }
+    );
+}
+
+function puxarTotensForaServico(req, res){
+    dadosModel.puxarTotensForaServico().then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
         } else {
@@ -69,5 +104,7 @@ module.exports = {
     puxarDadosCpu,
     puxarDadosRam,
     puxarDadosDisco,
-    puxarDadosUsb
+    puxarDadosUsb,
+    puxarStatusTotens,
+    puxarTotensForaServico
 }
