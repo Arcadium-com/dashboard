@@ -48,7 +48,7 @@ function cadastrar(req, res) {
 }
 
 function verificarPermissao(req, res){
-    var permissao = req.params.fkPermissao;;
+    var permissao = req.params.fkPermissao;
     if(permissao == undefined){
         res.status(400).send('permissao esta undefined');
         return;
