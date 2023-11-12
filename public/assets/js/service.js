@@ -45,7 +45,7 @@ function detectarPermissao(){
     const botaoFuncionario = document.querySelector("#DashboardFuncionario")
     const botaoSuporte = document.querySelector("#DashboardSuporte")
     if(permissao == 1){
-        console.log('oi')
+        console.log('Permissão Total');
     }else if(permissao == 2){
         botaoFuncionario.style.display = "none"
     }else if(permissao == 3){
@@ -66,6 +66,8 @@ function puxarStatusTotens(){
         console.log(response)
         if(response.ok){
             response.json().then(resposta => {
+                // O PROBLEMA ACONTECE AQUI NO RESPONSE.JSON() POIS OS TOTENS CADASTRADOS NA TABELA TOTEM POSSUEM STATUS NULO
+                // O QUE ACABA RESULTANDO NO CODIGO 204, REQUISIÇAO BEM SUCEEDIDA, POREM SEM RETORNO!
                 resposta.forEach(element => {
                     let linhaTabela = document.createElement("tr")
                     let itemTabela1 = document.createElement("td"); itemTabela1.textContent = element.id;
@@ -86,7 +88,7 @@ function puxarTotensFora(){
     .then(response => {
         if(response.ok){
             response.json().then(response => {
-                if(response[0].totalFora <= 1){
+                if(response[0].totalFora == 1){
                     elementoHTML.textContent = "1 totem"
                 }else{
                     elementoHTML.textContent = `${response[0].totalFora} totens`
@@ -96,6 +98,107 @@ function puxarTotensFora(){
             console.log('erro');
         }
     }).catch(error => console.log(error))
+}
+
+function puxarTotemComMaisAlertas(){
+    let elementoHTML = document.querySelector("#TotemMaisAlertas");
+    let elementoHTML2 = document.querySelector("#QuantidadeAlertas");
+    fetch("/dados/puxarTotemComMaisAlertas")
+    .then(response => {
+        if(response.ok){
+            console.log(response);
+            response.json().then(resposta => {
+                console.log(resposta)
+                elementoHTML.textContent = `Totem ID ${resposta[0].id_totem}`;
+                elementoHTML2.textContent = `${resposta[0].quantidade_problemas} alertas críticos`;       
+            });
+        }else {
+            console.log("erro");
+        }
+    }).catch(error => console.log(error))
+}
+
+async function puxarHorariosComQuantidadeAlertas() {
+    try {
+        const response = await fetch("/dados/puxarHorariosComQuantidadeAlertas");
+        if (response.ok) {
+            const data = await response.json();
+            console.log(data)
+            console.log(data.map(json => json.quantidade_problemas));
+            return data;
+        } else console.error("Erro na requisição:", response.statusText);
+        
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function puxarMaquinas(){
+    const select = document.querySelector(".selectBox select")
+    fetch(`/dados/puxarMaquinas/${sessionStorage.getItem("ID_EMPRESA")}`)
+    .then(response => {
+        if(response.ok){
+            response.json().then(resposta => {
+                for(item of resposta){
+                    let option = document.createElement("option");
+                    option.setAttribute("value", item.id);
+                    option.textContent = "Máquina " + item.id;
+                    select.appendChild(option);
+                }
+            });
+        }else{
+            console.log("error")
+        }
+    }).catch(error => console.log(error))
+}
+
+async function puxarDadosMaquina(){
+    try{
+        const response = await fetch(`/dados/puxarDadosMaquina/${sessionStorage.getItem("ID_MAQUINA")}`);
+        if(response.ok){
+            const data = await response.json();
+            return data;
+        } else console.error("Erro na requisição:", response.statusText);
+    } catch (error){
+        console.error(error)
+    }
+}
+
+async function puxarIndicadores(){
+    try{
+        const response = await fetch(`/dados/puxarIndicadores/${sessionStorage.getItem("ID_MAQUINA")}`);
+        if(response.ok){
+            const data = await response.json();
+            console.log(data);
+            return data;
+        } else console.error("Erro na requisição:", response.statusText);
+    } catch (error){
+        console.error(error)
+    }
+}
+
+async function puxarDadoMaisRecente(){
+    try{
+        const response = await fetch(`/dados/puxarDadoMaisRecente/${sessionStorage.getItem("ID_MAQUINA")}`);
+        if(response.ok){
+            const data = await response.json();
+            return data;
+        } else console.error("Erro na requisição:", response.statusText);
+    } catch (error){
+        console.error(error)
+    }
+}
+
+async function puxarDiasMesComQuantidadeAlertas(){
+    try{
+        const response = await fetch(`/dados/puxarDiasMesComQuantidadeAlertas/${sessionStorage.getItem("ID_EMPRESA")}`);
+        if(response.ok){
+            const data = await response.json();
+            return data
+        }else console.error("Erro na requisição:", response.statusText);
+    } catch (error){
+        console.error(error)
+    }
 }
 
 detectarPermissao()

@@ -7,6 +7,7 @@
 }
 
 
+
 .HardwareGrafico:nth-child(1) {
     grid-area: disco;
 }
