@@ -78,7 +78,7 @@ function puxarMaquinas(idEmpresa) {
 }
 
 function puxarDadosMaquina(idMaquina) {
-    var instrucao = `select TIME(dt_hora) as hora, DATE(dt_hora) as "data", valorCPU, valorDisco, valorMemoriaRAM, USB from dados where fktotem = ${idMaquina} and DATE(dt_hora) = DATE(current_date) order by dt_hora limit 7`
+    var instrucao = `select TIME(dt_hora) as hora, DATE(dt_hora) as "data", valorCPU, valorDisco, valorMemoriaRAM, USB from dados where fktotem = ${idMaquina} and DATE(dt_hora) = DATE(current_date) order by dt_hora desc limit 7`
     console.log(`Executando ${instrucao}`);
     return database.executar(instrucao);
 }

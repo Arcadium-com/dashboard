@@ -157,7 +157,7 @@ async function puxarDadosMaquina(){
         const response = await fetch(`/dados/puxarDadosMaquina/${sessionStorage.getItem("ID_MAQUINA")}`);
         if(response.ok){
             const data = await response.json();
-            return data;
+            return data.reverse();
         } else console.error("Erro na requisição:", response.statusText);
     } catch (error){
         console.error(error)

@@ -167,29 +167,31 @@
 
             listaGraficos.push(grafico); // Armazena a instância no array
         }
-        setInterval(() => atualizar(listaGraficos), 999999999);
+        setInterval(() => atualizar(listaGraficos), 3000);
     }
 
     async function atualizar(listaGraficos){
         let contador = 1;
-        //1o disco 2o memoria 3o usb 4o cpu
+        let hardwareAlerta = [];
         for(grafico of listaGraficos){
             let novoDado = await puxarDadoMaisRecente();
-            let novoLabel = novoDado[0].hora
-
+            let novoLabel = novoDado[0].hora;
+            
+            //1o disco 2o memoria 3o usb 4o cpu
             if(contador == 1) novoDado = novoDado[0].valorDisco;
             else if(contador == 2) novoDado = novoDado[0].valorMemoriaRAM;
             else if(contador == 3) novoDado = novoDado[0].USB;
             else if(contador == 4) novoDado = novoDado[0].valorCPU;
 
-            let dataTamanho = grafico.data.datasets[0].data.length;
             //console.log("dado novo: " + novoDado)
             //console.log("ultimo dado antigo: " + grafico.data.datasets[0].data[dataTamanho - 1])
-            
-            if(grafico.data.datasets[0].data[dataTamanho - 1] != novoDado){
+
+            if(grafico.data.labels[grafico.data.labels.length - 1] != novoLabel){
                 grafico.data.datasets[0].data.push(novoDado);
                 grafico.data.labels.push(novoLabel);
-                verificarDados(novoDado, contador);
+                console.log(`contador: ${contador}`);
+                let component = await verificarDados(novoDado, contador, "hardware"); 
+                hardwareAlerta.push(component)
             }else{
                 console.log("Sem dados novos...")
             }
@@ -203,31 +205,10 @@
 
             contador++;
         }
-    } 
-
-    async function verificarDados(novoDado, contador){
-        let alertaCritico = false;
-        let indicadores = await puxarIndicadores();
-        let hardware = []
-       
-        //1o disco 2o memoria 3o usb 4o cpu
-        if(contador == 1){ 
-            alertaCritico = novoDado < indicadores[0].limitedisco;
-            hardware.push("Disco");
-        }else if(contador == 2){ 
-            alertaCritico = novoDado < indicadores[0].limiteram;
-            hardware.push("RAM");
-        }else if(contador == 3){ 
-            alertaCritico = novoDado < indicadores[0].limiteusb;
-            hardware.push("USB");
-        }else if(contador == 4){ 
-            alertaCritico = novoDado < indicadores[0].limitecpu;
-            hardware.push("CPU");
-        }
-
-        if(alertaCritico){
+        console.log(hardwareAlerta)
+        if(hardwareAlerta[0] != undefined || hardwareAlerta[1] != undefined || hardwareAlerta[2] != undefined || hardwareAlerta[3] != undefined){
             Swal.fire({
-                title: `Alerta crítico relacionado aos componentes: ${hardware}`,
+                title: `Alerta crítico relacionado aos componentes: ${hardwareAlerta}`,
                 icon: 'error',
                 timer: 3000, // Tempo de exibição do toast em milissegundos
                 toast: true,
@@ -235,7 +216,43 @@
                 showConfirmButton: false
             })
         }
-        
+    } 
+
+    async function verificarDados(novoDado, contador, retorno){
+        let alertaCritico = false;
+        let indicadores = await puxarIndicadores();
+        let hardware;
+       
+        //1o disco 2o memoria 3o usb 4o cpu
+        if(contador == 1){ 
+            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limitedisco);
+            console.log(`Disco: ${novoDado}, Limite Disco: ${indicadores[0].limitedisco}, ${alertaCritico}`)
+            hardware = "Disco";
+        }else if(contador == 2){ 
+            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limiteram);
+            console.log(`RAM: ${novoDado}, Limite RAM: ${indicadores[0].limiteram}, ${alertaCritico}`)
+            hardware = "RAM";
+        }else if(contador == 3){ 
+            alertaCritico = parseFloat(novoDado) < parseFloat(indicadores[0].limiteusb);
+            console.log(`USB: ${novoDado}, USBs necessarios: ${indicadores[0].limiteusb}, ${alertaCritico}`)
+            hardware = "USB";
+        }else if(contador == 4){ 
+            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limitecpu);
+            console.log(`${novoDado} é maior que ${indicadores[0].limitecpu}? ${alertaCritico}`)
+            console.log(`CPU: ${novoDado}, Limite CPU: ${indicadores[0].limitecpu}, ${alertaCritico}`)
+            hardware = "CPU";
+        }
+
+
+        if(retorno == "alerta"){
+            return alertaCritico
+        }else if(retorno == "hardware"){
+            if(alertaCritico){
+                return hardware
+            }else{
+                return
+            }
+        }
     }
 
     async function mostrarTotalAlertas(){
@@ -278,13 +295,12 @@
                         },
                         y: {
                             beginAtZero: true,
-                            max: item != usb ? 100 : null,
                             title: {
                                 display: true,
                                 text: "Quantidade de alertas no dia"
                             },
                             ticks: {
-                                stepSize: item == usb ? 1 : 10,
+                                stepSize: 1
                             },
                         },
                     },
