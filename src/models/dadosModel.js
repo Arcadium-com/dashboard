@@ -2,25 +2,29 @@ var database = require("../database/config");
 var mysql = require("mysql2");
 
 
-function puxarStatusTotens() {
-    var instrucao = "select totem.id, statusTotem from totem join statustotem on fkstatus = statustotem.id order by totem.id;"
+function puxarStatusTotens(idEmpresa) {
+    var instrucao = `select totem.id, statusTotem from totem join statusTotem on fkstatus = statusTotem.id where totem.fkempresa = ${idEmpresa} order by totem.id;`
     console.log(`executando ${instrucao}`);
     return database.executar(instrucao);
+    // SINTAXE CERTA!!
 }
 
-function puxarTotensForaServico() {
-    var instrucao = "select count(*) as totalFora from totem where fkstatus = 2;" // quantidade de totens inativos ou em manutenção
+
+function puxarTotensForaServico(idEmpresa) {
+    var instrucao = `select count(*) as totalFora from totem where fkstatus = 2 and totem.fkempresa = ${idEmpresa};` // quantidade de totens inativos ou em manutenção
     console.log(`executando ${instrucao}`);
     return database.executar(instrucao);
+    // SINTAXE CERTA
 }
 
-function puxarTotemMaisAlertas() {
-    var instrucao = "SELECT totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN indicadores ON totem.fkindicadores = indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= limiteCPU OR valorMemoriaRAM >= limiteRAM OR valorDisco >= limiteDisco) GROUP BY totem.id ORDER BY quantidade_problemas DESC LIMIT 1;"
+function puxarTotemMaisAlertas(idEmpresa) {
+    var instrucao = `SELECT totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN Indicadores ON totem.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco) OR dados.USB != IndicadorUSB AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC LIMIT 1;`
     console.log(`executando: ${instrucao}`);
     return database.executar(instrucao);
+    // sintaxe certa
 }
 
-async function puxarHorariosComQuantidadeAlertas() { // PERCEBI AGORA QUE NÃO TA FILTRANDO POR EMPRESA, PRECISO CORRIGIR!!!
+async function puxarHorariosComQuantidadeAlertas(idEmpresa) {
     try {
         var conexao = mysql.createConnection(database.mySqlConfig);
         conexao.connect();
@@ -49,18 +53,17 @@ async function puxarHorariosComQuantidadeAlertas() { // PERCEBI AGORA QUE NÃO T
 
         let instrucao3 =
             `SELECT HOUR(todos_horarios.hora) as hora,
-        IFNULL(SUM(CASE WHEN valorCPU >= limiteCPU OR valorMemoriaRAM >= limiteRAM OR valorDisco >= limiteDisco OR dados.USB < totem.USB THEN 1 ELSE 0 END), 0) as quantidade_problemas
+        IFNULL(SUM(CASE WHEN valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as quantidade_problemas
         FROM todos_horarios
         LEFT JOIN dados ON DATE_FORMAT(dados.dt_hora, '%Y-%m-%d %H:00:00') = todos_horarios.hora
         LEFT JOIN totem ON totem.id = dados.fktotem
         LEFT JOIN indicadores ON totem.fkindicadores = indicadores.id
-        WHERE (valorCPU >= limiteCPU OR valorMemoriaRAM >= limiteRAM OR valorDisco >= limiteDisco OR dados.USB < totem.USB OR dados.dt_hora IS NULL)
+        WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB OR dados.dt_hora IS NULL)
         AND DATE(todos_horarios.hora) = CURRENT_DATE
+        AND TOTEM.FKEMPRESA = ${idEmpresa}
         GROUP BY todos_horarios.hora
         ORDER BY todos_horarios.hora;`;
         console.log("Executando 'puxarHorariosComQuantidadeAlertas'")
-
-
         await database.executarSemEncerrar(instrucao1, conexao);
         await database.executarSemEncerrar(instrucao2, conexao);
         let resultado = await database.executarSemEncerrar(instrucao3, conexao);
@@ -84,14 +87,20 @@ function puxarDadosMaquina(idMaquina) {
 }
 
 function puxarIndicadores(idMaquina) {
-    var instrucao = `select totem.id as "idtotem", limitecpu, limiteram, limitedisco, usb as limiteusb from indicadores join totem on fkindicadores = indicadores.id where totem.id = ${idMaquina};`
+    var instrucao = `select LimiteCPU as "cpu", LimiteRAM as "ram", LimiteDisco as "disco", IndicadorUSB as "usb" from indicadores join totem on fkindicadores = indicadores.id where totem.id = ${idMaquina};`
     console.log(`Executando ${instrucao}`);
     return database.executar(instrucao);
 }
 
 function puxarDadoMaisRecente(idMaquina) {
-    var instrucao = `select TIME(dt_hora) as hora, DATE(dt_hora) as "data", valorCPU, valorDisco, valorMemoriaRAM, dados.USB  from dados join totem on fktotem = totem.id where totem.id = ${idMaquina} and DATE(dt_hora) = DATE(current_date) order by dt_hora desc limit 1;`
+    var instrucao = `select TIME(dt_hora) as hora, DATE(dt_hora) as "data", valorCPU as cpu, valorDisco as disco, valorMemoriaRAM as ram, dados.USB as usb  from dados join totem on fktotem = totem.id where totem.id = ${idMaquina} and DATE(dt_hora) = DATE(current_date) order by dt_hora desc limit 1;`
     console.log(`Executando puxandoDadoMaisRecente`);
+    return database.executar(instrucao);
+}
+
+function puxarDadoMaisRecenteTodasMaquinas(idEmpresa) {
+    var instrucao = `select TIME(dt_hora) as hora,  totem.id as "totem", DATE(dt_hora) as "data", valorCPU as cpu, valorDisco as disco, valorMemoriaRAM as ram, dados.USB as usb  from dados join totem on fktotem = totem.id where totem.fkempresa = ${idEmpresa} and DATE(dt_hora) = DATE(current_date) order by dt_hora desc limit 1;`
+    console.log(`Executando puxandoDadoMaisRecenteTodasMaquinas`);
     return database.executar(instrucao);
 }
 
@@ -110,10 +119,10 @@ async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
             WHERE (CURDATE() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY) BETWEEN CURDATE() - INTERVAL DAY(LAST_DAY(CURDATE())) DAY AND CURDATE();`
         let instrucao3 = `SELECT
             day(todos_dias_mes.dia_do_mes) as dia,
-            COALESCE(SUM(CASE WHEN valorCPU >= limiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
-            COALESCE(SUM(CASE WHEN valorMemoriaRAM >= limiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
-            COALESCE(SUM(CASE WHEN valorDisco >= limiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
-            COALESCE(SUM(CASE WHEN dados.USB < totem.USB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
+            COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
+            COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
+            COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
+            COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
             FROM
             todos_dias_mes
             LEFT JOIN
@@ -137,6 +146,34 @@ async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
     }
 }
 
+function puxarDiaSemanaComMaisAlertas(idEmpresa){
+    var instrucao = `SELECT
+        DAYNAME(d.dt_hora) AS dia_da_semana,
+        COUNT(*) / COUNT(DISTINCT DAYOFMONTH(d.dt_hora)) AS media_alertas
+    FROM
+        dados d
+    JOIN
+        totem t ON d.fktotem = t.id
+    JOIN
+        Indicadores i ON t.fkindicadores = i.id
+    WHERE
+        (
+            -- Condições para alertas críticos para CPU, RAM e Disco
+            (d.valorCPU >= i.LimiteCPU OR d.valorMemoriaRAM >= i.LimiteRAM OR d.valorDisco >= i.LimiteDisco)
+            OR
+            -- Condição para alertas críticos para USB
+            (d.USB != i.IndicadorUSB)
+        )
+        AND t.fkempresa = ${idEmpresa}-- Substitua [ID_DA_EMPRESA] pelo ID da empresa desejada
+        AND MONTH(d.dt_hora) = MONTH(NOW()) -- Filtra pelo mês atual
+        AND YEAR(d.dt_hora) = YEAR(NOW())   -- Filtra pelo ano atual
+    GROUP BY
+        DAYNAME(d.dt_hora)
+    ORDER BY
+        media_alertas DESC;`
+    console.log("Executando puxarDiaSemanaComMaisAlertas")
+    return database.executar(instrucao)
+}
 
 module.exports = {
     puxarStatusTotens,
@@ -147,5 +184,7 @@ module.exports = {
     puxarDadosMaquina,
     puxarIndicadores,
     puxarDadoMaisRecente,
-    puxarDiasMesComQuantidadeAlertas
+    puxarDiasMesComQuantidadeAlertas,
+    puxarDiaSemanaComMaisAlertas,
+    puxarDadoMaisRecenteTodasMaquinas
 }

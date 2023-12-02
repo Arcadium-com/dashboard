@@ -61,7 +61,7 @@ function detectarPermissao(){
 
 function puxarStatusTotens(){
     let elementoHTML = document.querySelector(".status-totem");
-    fetch("/dados/puxarStatusTotens")
+    fetch(`/dados/puxarStatusTotens/${sessionStorage.getItem("ID_EMPRESA")}`)
     .then(response => {
         console.log(response)
         if(response.ok){
@@ -84,7 +84,7 @@ function puxarStatusTotens(){
 
 function puxarTotensFora(){
     let elementoHTML = document.querySelector("#TotensFora")
-    fetch("/dados/puxarTotensForaServico")
+    fetch(`/dados/puxarTotensForaServico/${sessionStorage.getItem("ID_EMPRESA")}`)
     .then(response => {
         if(response.ok){
             response.json().then(response => {
@@ -103,12 +103,10 @@ function puxarTotensFora(){
 function puxarTotemComMaisAlertas(){
     let elementoHTML = document.querySelector("#TotemMaisAlertas");
     let elementoHTML2 = document.querySelector("#QuantidadeAlertas");
-    fetch("/dados/puxarTotemComMaisAlertas")
+    fetch(`/dados/puxarTotemComMaisAlertas/${sessionStorage.getItem("ID_EMPRESA")}`)
     .then(response => {
         if(response.ok){
-            console.log(response);
             response.json().then(resposta => {
-                console.log(resposta)
                 elementoHTML.textContent = `Totem ID ${resposta[0].id_totem}`;
                 elementoHTML2.textContent = `${resposta[0].quantidade_problemas} alertas críticos`;       
             });
@@ -120,11 +118,9 @@ function puxarTotemComMaisAlertas(){
 
 async function puxarHorariosComQuantidadeAlertas() {
     try {
-        const response = await fetch("/dados/puxarHorariosComQuantidadeAlertas");
+        const response = await fetch(`/dados/puxarHorariosComQuantidadeAlertas/${sessionStorage.getItem("ID_EMPRESA")}`);
         if (response.ok) {
             const data = await response.json();
-            console.log(data)
-            console.log(data.map(json => json.quantidade_problemas));
             return data;
         } else console.error("Erro na requisição:", response.statusText);
         
@@ -144,6 +140,9 @@ function puxarMaquinas(){
                     option.setAttribute("value", item.id);
                     option.textContent = "Máquina " + item.id;
                     select.appendChild(option);
+                }
+                if (!sessionStorage.getItem("ID_MAQUINA")) {
+                    sessionStorage.setItem("ID_MAQUINA", document.querySelector(".selectBox select").value)
                 }
             });
         }else{
@@ -169,7 +168,6 @@ async function puxarIndicadores(){
         const response = await fetch(`/dados/puxarIndicadores/${sessionStorage.getItem("ID_MAQUINA")}`);
         if(response.ok){
             const data = await response.json();
-            console.log(data);
             return data;
         } else console.error("Erro na requisição:", response.statusText);
     } catch (error){
@@ -189,6 +187,18 @@ async function puxarDadoMaisRecente(){
     }
 }
 
+async function puxarDadoMaisRecenteTodasMaquinas(){
+    try{
+        const response = await fetch(`/dados/puxarDadoMaisRecenteTodasMaquinas/${sessionStorage.getItem("ID_EMPRESA")}`);
+        if(response.ok){
+            const data = await response.json();
+            return data;
+        } else console.error("Erro na requisição:", response.statusText);
+    } catch (error){
+        console.error(error)
+    }
+}
+
 async function puxarDiasMesComQuantidadeAlertas(){
     try{
         const response = await fetch(`/dados/puxarDiasMesComQuantidadeAlertas/${sessionStorage.getItem("ID_EMPRESA")}`);
@@ -197,6 +207,18 @@ async function puxarDiasMesComQuantidadeAlertas(){
             return data
         }else console.error("Erro na requisição:", response.statusText);
     } catch (error){
+        console.error(error)
+    }
+}
+
+async function puxarDiaSemanaMaisAlertas(){
+    try{
+        const response = await fetch(`/dados/puxarDiaSemanaComMaisAlertas/${sessionStorage.getItem("ID_EMPRESA")}`);
+        if(response.ok){
+            const data = await response.json();
+            return data
+        }else console.error("Erro na requisição: ", response.statusText);
+    }catch (error){
         console.error(error)
     }
 }

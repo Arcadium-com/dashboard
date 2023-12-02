@@ -1,4 +1,4 @@
-DROP DATABASE Arcadium;
+DROP DATABASE IF EXISTS Arcadium;
 CREATE DATABASE Arcadium;
 USE Arcadium;
 CREATE TABLE Estado(
@@ -47,7 +47,8 @@ CREATE TABLE Indicadores (
 id INT PRIMARY KEY AUTO_INCREMENT,
 LimiteCPU decimal(5,2),
 LimiteRAM decimal(5,2),
-LimiteDisco decimal(5,2)
+LimiteDisco decimal(5,2),
+IndicadorUSB int
 );
 
 CREATE TABLE sistemaOperacional (
@@ -66,7 +67,6 @@ dtInstalacao DATE,
 RAMtotal INT,
 CPUtotal DECIMAL(5,2),
 DISCOtotal INT,
-USB tinyint(1),
 enderecoMAC varchar(45)
 );
 
@@ -130,7 +130,33 @@ INSERT INTO usuario Values
 INSERT INTO sistemaoperacional Values
 (null, 'Windows', 'Windows 10');
 
+INSERT INTO indicadores VALUES
+(null, 30.00, 30.00, 30.00, 2);
+
+INSERT INTO totem values
+(null, 1, 1, 1, 1, current_date, 8.0, 6.0, 120.0, "teste");
+
 INSERT INTO statusTotem Values
 (null,'ativo'),
 (null, 'inativo');
 
+-- INSERÇÕES DE DADOS NO BANCO!!!!!
+-- TODOS COMPONENTES EM ALERTA CRITICO (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)
+insert into dados values
+(current_timestamp(), 50.0, 50.0, 50.0, 1, 1, null);
+
+-- APENAS CPU EM ALERTA CRITICO  (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)
+insert into dados values
+(current_timestamp(), 20.0, 20.0, 33.0, 2, 1, null);
+
+-- APENAS DISCO EM ALERTA CRITICO  (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)
+insert into dados values
+(current_timestamp(), 75.0, 12.0, 15.0, 2, 1, null);
+
+-- APENAS RAM EM ALERTA CRITICO  (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)
+insert into dados values
+(current_timestamp(), 20.0, 44.0, 12.0, 2, 1, null);
+
+-- SEM ALERTAS CRITICOS (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)
+insert into dados values
+(current_timestamp(), 5.0, 12.0, 15.0, 2, 1, null);

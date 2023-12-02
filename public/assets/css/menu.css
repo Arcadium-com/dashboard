@@ -56,6 +56,14 @@ body{
     border-radius: 15px;
 }
 
+#BotaoSair {
+    position: absolute;
+    left: 98px;
+    bottom: 80px;
+    background-color: #dc2395;
+    border-radius: 30px;
+    border: none;
+}
 #RoxoBola{
     position: absolute;
     bottom: 0;

@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&family=Open+Sans:wght@300;800&display=swap');
-@font-face{
-    font-family:  'Gothic';
-    src: url(../../assets/fontes/CenturyGothicPaneuropeanBold.ttf);
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;900&display=swap');
 
 :root{
     --RoxoEscuro: #451459;
@@ -10,18 +7,19 @@
     --RosaClaro: #E66CD2;
     --Critico: #800707;
     --Ruim: #9F4105;
-    --Alerta: #8F7406;
+    --Medio: #8F7406;
     --Bom: #05692A;
     --CriticoFundo: #EDB1B1;
     --RuimFundo: #EDAA84;
-    --AlertaFundo: #EDE9B1;
+    --MedioFundo: #EDE9B1;
     --BomFundo: #D4EDB1;
     --AzulBola: #6CE5E8;
     --RoxoBola: #750E94;
 }
 
+
 body{
-    font-family: "Gothic";
+    font-family: "Poppins";
     background-image: linear-gradient(to right, var(--RoxoEscuro), var(--RosaClaro))
 }
 
@@ -58,7 +56,7 @@ a{
     display: flex;
     gap: 1em;
     align-items: center;
-    background-color: #000;
+    background-color: #2f0635;
     color: #fff;
 }
 
@@ -121,7 +119,32 @@ h1, h2{
     width: 25%;
     padding: .25em 1em;
     border-radius: 5px;
+    white-space: nowrap;
 }
+
+.Dashboard .LegendaAlertas li p{
+    position: relative;
+}
+
+.Dashboard .LegendaAlertas li p:hover span{
+    visibility: visible;
+}
+
+.Dashboard .LegendaAlertas li p span{
+    position: absolute;
+    background-color: #000;
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    bottom: 30px;
+    visibility: hidden;
+}
+
+.pointer{
+    cursor: pointer;
+}
+
+
 
 .Dashboard .ContainerGraficos{
     margin-top: 1em;
@@ -129,4 +152,37 @@ h1, h2{
     width: 100%;
     display: grid;
     gap: .75em;
+}
+
+.tituloCritico{
+    background: var(--Critico);
+    color: var(--CriticoFundo);
+}
+.tituloRuim{
+    background: var(--Ruim);
+    color: var(--RuimFundo);
+}
+.tituloMedio{
+    background: var(--Medio);
+    color: var(--MedioFundo);
+}
+
+.tituloBom{
+    background: var(--Bom);
+    color: var(--BomFundo)
+}
+.indicadorCritico{
+    background: var(--CriticoFundo);
+}
+
+.indicadorRuim{
+    background: var(--RuimFundo);
+}
+
+.indicadorMedio{
+    background: var(--MedioFundo)
+}
+
+.indicadorBom{
+    background: var(--BomFundo)
 }

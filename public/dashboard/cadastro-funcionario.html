@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Foodie Kioskie Analytics</title>
     <link rel="stylesheet" href="../assets/css/padroes.css">
     <link rel="stylesheet" href="../assets/css/menu.css">
     <link rel="stylesheet" href="../assets/css/cadastro.css">
@@ -11,55 +11,49 @@
 </head>
 <body>
     <nav class="MenuVertical">
-        <p class="TituloMenu">MENU</p>
+        <p class="TituloMenu"><img src="../assets/imgs/analytics.png"></p>
         <p id="Acesso">Nível</p>
         <ul class="ListaMenu">
-            <li><a id="DashboardFuncionario" href="dashboard-funcionario.html">DashboardF</a></li>
-            <li><a id="DashboardSuporte" href="dashboard-suporte.html">DashboardS</a></li>
+            <li><a id="DashboardFuncionario" href="dashboard-funcionario.html">Fast Food</a></li>
+            <li><a id="DashboardSuporte" href="dashboard-suporte.html">Suporte</a></li>
             <li><a id="CadastroUsuarios" class="PaginaAtual" href="cadastro-funcionario.html">Usuários</a></li>
             <li><a target="_blank" href="https://arcadium.atlassian.net/jira/servicedesk/projects/FK/queues/custom/1">Jira</a></li>
+            <li><a id="BotaoSair" href="../index.html">Sair</a></li>
         </ul>
-        <a href="../index.html"><span id="AzulBola"></span></a>
-        <a href="../index.html"><span id="RoxoBola"></span></a>
+        <span id="AzulBola"></span>
+        <span id="RoxoBola"></span>
     </nav>
     <main class="Container">
         <span class="TituloBW">
-            <img src="../assets/imagens/icones/usuario.png" alt="">
             <h1>USUÁRIOS</h1>
         </span>
         <div class="Cadastro Container">
             <h2 class="TituloRoxo">CADASTRAR USUÁRIOS</h2>
             <div class="ContainerLabels">
                 <span class="LabelBox">
-                    <label for="NomeCompleto">NOME COMPLETO</label>
+                    <label for="NomeCompleto"><b>NOME COMPLETO</b></label>
                     <input id="NomeCompleto" type="text">
                 </span>
-                <!-- <span class="LabelBox">
-                    <label for="Cargo">CARGO</label>
-                    <select id="Cargo" type="text">
-                        <option value=""></option>
-                    </select>
-                </span> -->
                 <span class="LabelBox">
-                    <label for="Permissao">TIPO DE PERMISSÃO</label>
+                    <label for="Permissao"><b>TIPO DE PERMISSÃO</b></label>
                     <select id="Permissao" type="text">
                     </select>
                 </span>
                 <span class="LabelBox">
-                    <label for="Email">EMAIL</label>
+                    <label for="Email"><b>E-MAIL</b></label>
                     <input id="Email" type="text">
                 </span>
                 <span class="LabelBox">
-                    <label for="Senha">SENHA</label>
+                    <label for="Senha"><b>SENHA</b></label>
                     <input id="Senha" type="password">
                 </span>
                 <span class="LabelBox">
-                    <label for="ConfirmaSenha">CONFIRMAR SENHA</label>
+                    <label for="ConfirmaSenha"><b>CONFIRMAR SENHA</b></label>
                     <input id="ConfirmaSenha" type="password">
                 </span>
             </div>
             <div class="ButtonBox">
-                <button onclick="cadastrar()">SALVAR</button>
+                <button onclick="cadastrar()"><b>SALVAR</b></button>
          </div>
         </div>
     </main>

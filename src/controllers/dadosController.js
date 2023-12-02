@@ -3,7 +3,8 @@ var dadosModel = require("../models/dadosModel");
 
 
 function puxarStatusTotens(req, res){
-    dadosModel.puxarStatusTotens().then(function (resultado) {
+    var empresa = req.params.idEmpresa
+    dadosModel.puxarStatusTotens(empresa).then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
         } else {
@@ -19,7 +20,8 @@ function puxarStatusTotens(req, res){
 }
 
 function puxarTotensForaServico(req, res){
-    dadosModel.puxarTotensForaServico().then(function (resultado) {
+    var empresa = req.params.idEmpresa;
+    dadosModel.puxarTotensForaServico(empresa).then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
         } else {
@@ -34,8 +36,9 @@ function puxarTotensForaServico(req, res){
     );
 }
 
-function puxarTotemComMaisAlertas(req, res){
-    dadosModel.puxarTotemMaisAlertas().then(function (resultado) {
+function puxarTotemComMaisAlertas(req, res){ 
+    var empresa = req.params.idEmpresa
+    dadosModel.puxarTotemMaisAlertas(empresa).then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
         } else {
@@ -51,8 +54,9 @@ function puxarTotemComMaisAlertas(req, res){
 }
 
 async function puxarHorariosComQuantidadeAlertas(req, res) {
+    var empresa = req.params.idEmpresa;
     try {
-        const resultado = await dadosModel.puxarHorariosComQuantidadeAlertas();
+        const resultado = await dadosModel.puxarHorariosComQuantidadeAlertas(empresa);
         if (resultado.length > 0) {
             res.status(200).json(resultado);
         } else {
@@ -135,9 +139,45 @@ function puxarDadoMaisRecente(req, res){
     );
 }
 
+function puxarDadoMaisRecenteTodasMaquinas(req, res){
+    var empresa = req.params.idEmpresa;
+    dadosModel.puxarDadoMaisRecenteTodasMaquinas(empresa)
+    .then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(
+        function (erro) {
+            console.log(erro);
+            console.log("Houve um erro ao realizar a consulta! Erro: ", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        }
+    );
+}
+
 function puxarDiasMesComQuantidadeAlertas(req, res){
     var empresa = req.params.idEmpresa;
     dadosModel.puxarDiasMesComQuantidadeAlertas(empresa)
+    .then(function (resultado) {
+        if (resultado.length > 0) {
+            res.status(200).json(resultado);
+        } else {
+            res.status(204).send("Nenhum resultado encontrado!")
+        }
+    }).catch(
+        function (erro) {
+            console.log(erro);
+            console.log("Houve um erro ao realizar a consulta! Erro: ", erro.sqlMessage);
+            res.status(500).json(erro.sqlMessage);
+        }
+    );
+}
+
+function puxarDiaSemanaComMaisAlertas(req, res){
+    var empresa = req.params.idEmpresa;
+    dadosModel.puxarDiaSemanaComMaisAlertas(empresa)
     .then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
@@ -161,5 +201,7 @@ module.exports = {
     puxarDadosMaquina,
     puxarIndicadores,
     puxarDadoMaisRecente,
-    puxarDiasMesComQuantidadeAlertas
+    puxarDiasMesComQuantidadeAlertas,
+    puxarDiaSemanaComMaisAlertas,
+    puxarDadoMaisRecenteTodasMaquinas
 }

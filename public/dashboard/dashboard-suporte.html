@@ -13,41 +13,55 @@
 
 <body onload="criarGraficoSuporte()">
     <nav class="MenuVertical">
-        <p class="TituloMenu">MENU</p>
+        <p class="TituloMenu"><img src="../assets/imgs/analytics.png"></p>
         <p id="Acesso">Nível</p>
         <ul class="ListaMenu">
-            <li><a id="DashboardFuncionario" href="dashboard-funcionario.html">DashboardF</a></li>
-            <li><a id="DashboardSuporte" class="PaginaAtual" href="dashboard-suporte.html">DashboardS</a></li>
+            <li><a id="DashboardFuncionario" href="dashboard-funcionario.html">Fast Food</a></li>
+            <li><a id="DashboardSuporte" class="PaginaAtual" href="dashboard-suporte.html">Suporte</a></li>
             <li><a id="CadastroUsuarios" href="cadastro-funcionario.html">Usuários</a></li>
-            <li><a target="_blank"
-                    href="https://arcadium.atlassian.net/jira/servicedesk/projects/FK/queues/custom/1">Jira</a></li>
+            <li><a target="_blank" href="https://arcadium.atlassian.net/jira/servicedesk/projects/FK/queues/custom/1">Jira</a></li>
+            <li><a id="BotaoSair" href="../index.html">Sair</a></li>
         </ul>
-        <a href="../index.html"><span id="AzulBola"></span></a>
-        <a href="../index.html"><span id="RoxoBola"></span></a>
+        <span id="AzulBola"></span>
+        <span id="RoxoBola"></span>
     </nav>
     <main style="gap: 4em !important;" class="Dashboard">
         <span class="TituloBW">
-            <img src="../../assets/imagens/icones/usuario.png" alt="">
-            <h1>VISÃO GERAL DE SUPORTE TÉCNICO</h1>
+            <h1>VISÃO GERAL DE SUPORTE TÉCNICO </h1>
         </span>
         <ul class="LegendaAlertas">
-            <li style="background: var(--CriticoFundo);"><i class="fa-solid fa-bell" style="color: var(--Critico)"></i>
-                <p>Crítico</p>
+            <li style="background: var(--CriticoFundo); color: var(--Critico);">
+                <i class="fa-solid fa-bell" ></i>
+                <b>Crítico</b>
             </li>
-            <li style="background: var(--RuimFundo);"><i class="fa-solid fa-bell" style="color: var(--Ruim)"></i>
-                <p>Ruim</p>
+            <li style="background: var(--RuimFundo); color: var(--Ruim)">
+                <i class="fa-solid fa-bell"></i>
+                <b>Ruim</b>
             </li>
-            <li style="background: var(--AlertaFundo);"><i class="fa-solid fa-bell" style="color: var(--Alerta)"></i>
-                <p>Alerta</p>
+            <li style="background: var(--MedioFundo); color: var(--Medio)">
+                <i class="fa-solid fa-bell"></i>
+                <b>Médio</b>
             </li>
-            <li style="background: var(--BomFundo);"><i class="fa-solid fa-bell" style="color: var(--Bom)"></i>
-                <p>Bom</p>
+            <li style="background: var(--BomFundo); color: var(--Bom)">
+                <i class="fa-solid fa-bell"></i>
+                <b>Bom</b>
             </li>
         </ul>
-        <div class="selectBox">
-            <select>
-            </select>
-            <button onclick="mudarMaquina()">Atualizar</button>
+        <div class="SecaoInformacoes">
+            <div class="selectBox">
+                <select>
+                </select>
+                <button id="botaoMudarMaquina" onclick="mudarMaquina()">Atualizar</button>
+            </div>
+            <div class="Indicadores">
+                <ul class="LegendaAlertas">
+                    <li id="indicadortitulo"><b>Indicadores</b></li>
+                    <li id="indicadordisco">Disco:&nbsp;</li>
+                    <li id="indicadorram">RAM:&nbsp;</li>
+                    <li id="indicadorusb">USB:&nbsp;</li>
+                    <li id="indicadorcpu">CPU:&nbsp;</li>
+                </ul>
+            </div>
         </div>
         <div class="ContainerGraficos">
             <div class="cards HardwareGrafico">
@@ -56,7 +70,7 @@
             </div>
             <div class="cards HardwareGrafico">
                 <p>Uso da RAM atual</p>
-                <canvas id="memoria"></canvas>
+                <canvas id="ram"></canvas>
             </div>
             <div class="cards HardwareGrafico">
                 <p>Quantidade atual de USBs conectados</p>
@@ -70,31 +84,75 @@
                 <p>Quantidade total de alertas críticos do mês</p>
                 <canvas id="alertasMes"></canvas>
             </div>
-            <!-- <div class="cards StatusTotem">
-                <canvas id="status-totem"></canvas>
-            </div>
-            <div class="cards HorariosUso">
-                <canvas id="horarios-uso"></canvas>
-            </div> -->
         </div>
     </main>
+
 </body>
 
 </html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../assets/js/funcoes.js"></script>
 <script src="../assets/js/service.js"></script>
 <script>
     let permissao = sessionStorage.getItem("PERMISSAO")
     if (permissao != 1 && permissao != 2 && permissao != 4) window.location.href = "../index.html"
+    let entrouAgora = true;
+
     function mudarMaquina() {
-        sessionStorage.ID_MAQUINA = document.querySelector(".selectBox select").value
+        sessionStorage.setItem("ID_MAQUINA", document.querySelector(".selectBox select").value);
         location.reload();
     }
     puxarMaquinas();
+    async function mostrarIndicadores(elemento = "critico") {
+        let alertas = {
+            critico: {
+                descricao: `Este alerta representa um nível crítico de utilização. Quando atinge 100%, o alerta crítico é acionado, representa que há uma situação que requer atenção imediata. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 1.0,
+                class: "indicadorCritico",
+                classTitulo: "tituloCritico"
+            }, ruim: {
+                descricao: `O alerta ruim é acionado quando atinge 90% do nível crítico. Isso indica uma situação preocupante, embora não tão urgente quanto a de nível crítico. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 0.9,
+                class: "indicadorRuim",
+                classTitulo: "tituloRuim"
+            }, medio: {
+                descricao: `O alerta médio é acionado quando atinge 80% do nível crítico. Isso sinaliza uma situação que está se aproximando do nível ruim, mas ainda não atingiu um estado crítico. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 0.8,
+                class: "indicadorMedio",
+                classTitulo: "tituloMedio"
+            }, bom: {
+                descricao: `O alerta bom representa uma performance boa, uma máquina em estado estável, isso é identificado quando os valores estão abaixo dos indicadores médios.`,
+                percentual: 0.8,
+                class: "indicadorBom",
+                classTitulo: "tituloBom"
+            }
+        }
+        let indicadores = await puxarIndicadores();
+        document.querySelector(`#indicadortitulo`).classList = []
+        for (let item of Object.keys(indicadores[0])) {
+            document.querySelector(`#indicador${item}`).classList = []
+            if (item != "usb") {
+                if (elemento == 'bom') {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≤ ${indicadores[0][item] * alertas[elemento].percentual}%</b>`;
+                } else {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≥ ${indicadores[0][item] * alertas[elemento].percentual}%</b>`;
+                }
+                document.querySelector(`#indicador${item}`).classList.add(alertas[elemento].class)
+                document.querySelector(`#indicadortitulo`).classList.add(alertas[elemento].classTitulo)
+            } else {
+                if (elemento == 'bom') {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} = ${indicadores[0][item]}</b>`
+                    document.querySelector(`#indicador${item}`).classList.add("indicadorBom");
+                } else {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≠ ${indicadores[0][item]}</b>`
+                    document.querySelector(`#indicador${item}`).classList.add("indicadorCritico");
 
-    
+                }
+            }
+        }
+    }
+    mostrarIndicadores();
+
     async function criarGraficoSuporte() {
         const disco = {
             html: document.getElementById("disco"),
@@ -102,7 +160,7 @@
             titulosEixos: { x: "Horário", y: "Percentual de uso" },
         };
         const memoria = {
-            html: document.getElementById("memoria"),
+            html: document.getElementById("ram"),
             titulo: "Uso da memória",
             titulosEixos: { x: "Horário", y: "Percentual de uso" },
         };
@@ -170,92 +228,112 @@
         setInterval(() => atualizar(listaGraficos), 3000);
     }
 
-    async function atualizar(listaGraficos){
-        let contador = 1;
-        let hardwareAlerta = [];
-        for(grafico of listaGraficos){
-            let novoDado = await puxarDadoMaisRecente();
+    async function atualizar(listaGraficos) {
+        let novoDado = await puxarDadoMaisRecente();
+        let recebeuDadosNovos = false;
+
+        for (grafico of listaGraficos) {
+            let nomeHardware = grafico.canvas.id;
             let novoLabel = novoDado[0].hora;
-            
+            let dadoHardware = novoDado[0][nomeHardware]
             //1o disco 2o memoria 3o usb 4o cpu
-            if(contador == 1) novoDado = novoDado[0].valorDisco;
-            else if(contador == 2) novoDado = novoDado[0].valorMemoriaRAM;
-            else if(contador == 3) novoDado = novoDado[0].USB;
-            else if(contador == 4) novoDado = novoDado[0].valorCPU;
 
-            //console.log("dado novo: " + novoDado)
-            //console.log("ultimo dado antigo: " + grafico.data.datasets[0].data[dataTamanho - 1])
-
-            if(grafico.data.labels[grafico.data.labels.length - 1] != novoLabel){
-                grafico.data.datasets[0].data.push(novoDado);
+            console.log(novoDado)
+            if (grafico.data.labels[grafico.data.labels.length - 1] != novoLabel) {
+                grafico.data.datasets[0].data.push(dadoHardware);
                 grafico.data.labels.push(novoLabel);
-                console.log(`contador: ${contador}`);
-                let component = await verificarDados(novoDado, contador, "hardware"); 
-                hardwareAlerta.push(component)
-            }else{
-                console.log("Sem dados novos...")
+                recebeuDadosNovos = true;
+            } else {
+                recebeuDadosNovos = false
             }
 
-            if(grafico.data.datasets[0].data.length > 7){
-                grafico.data.datasets[0].data.shift()
-                grafico.data.labels.shift()
+            if (grafico.data.datasets[0].data.length > 7) {
+                grafico.data.datasets[0].data.shift();
+                grafico.data.labels.shift();
             }
-            
+
             grafico.update();
-
-            contador++;
         }
-        console.log(hardwareAlerta)
-        if(hardwareAlerta[0] != undefined || hardwareAlerta[1] != undefined || hardwareAlerta[2] != undefined || hardwareAlerta[3] != undefined){
-            Swal.fire({
-                title: `Alerta crítico relacionado aos componentes: ${hardwareAlerta}`,
-                icon: 'error',
-                timer: 3000, // Tempo de exibição do toast em milissegundos
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false
-            })
+        if (!recebeuDadosNovos) {
+            if (entrouAgora) {
+                verificarDados(novoDado, entrouAgora);
+                entrouAgora = false;
+            } else {
+                console.log("Sem dados novos..")
+            }
+        } else {
+            verificarDados(novoDado, entrouAgora);
         }
-    } 
+    }
 
-    async function verificarDados(novoDado, contador, retorno){
-        let alertaCritico = false;
+    async function verificarDados(registro, entrouAgora) {
         let indicadores = await puxarIndicadores();
-        let hardware;
-       
-        //1o disco 2o memoria 3o usb 4o cpu
-        if(contador == 1){ 
-            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limitedisco);
-            console.log(`Disco: ${novoDado}, Limite Disco: ${indicadores[0].limitedisco}, ${alertaCritico}`)
-            hardware = "Disco";
-        }else if(contador == 2){ 
-            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limiteram);
-            console.log(`RAM: ${novoDado}, Limite RAM: ${indicadores[0].limiteram}, ${alertaCritico}`)
-            hardware = "RAM";
-        }else if(contador == 3){ 
-            alertaCritico = parseFloat(novoDado) < parseFloat(indicadores[0].limiteusb);
-            console.log(`USB: ${novoDado}, USBs necessarios: ${indicadores[0].limiteusb}, ${alertaCritico}`)
-            hardware = "USB";
-        }else if(contador == 4){ 
-            alertaCritico = parseFloat(novoDado) >= parseFloat(indicadores[0].limitecpu);
-            console.log(`${novoDado} é maior que ${indicadores[0].limitecpu}? ${alertaCritico}`)
-            console.log(`CPU: ${novoDado}, Limite CPU: ${indicadores[0].limitecpu}, ${alertaCritico}`)
-            hardware = "CPU";
+        let alertas = {
+            critico: [],
+            ruim: [],
+            medio: []
+        }
+        let data = new Date(registro[0].data);
+        let dataFormatada = `${data.getUTCDate()}/${data.getUTCMonth()}/${data.getUTCFullYear()}`
+        let mensagemAlerta = `${dataFormatada} ${registro[0].hora}<br>`;
+
+        for (let item of Object.keys(indicadores[0])) {
+            console.log(`COMPONENTE: ${item} || REGISTRO: ${registro[0][item]} || INDICADOR: ${indicadores[0][item]}`)
+            if (item != "usb") {
+                if (registro[0][item] >= indicadores[0][item]) { // alerta crítico
+                    alertas.critico.push(`${item.toUpperCase()} || valor: ${registro[0][item]}`)
+                } else if (registro[0][item] >= indicadores[0][item] * 0.9) {  // alerta ruim
+                    alertas.ruim.push(`${item.toUpperCase()} || valor: ${registro[0][item]} `)
+                } else if (registro[0][item] >= indicadores[0][item] * 0.8) {  // alerta medio
+                    alertas.medio.push(`${item.toUpperCase()} || valor: ${registro[0][item]}`)
+                }
+            } else {
+                if (registro[0][item] != indicadores[0][item]) {
+                    alertas.critico.push(`${item.toUpperCase()}: ${registro[0][item]} || valor: ${registro[0][item]}`)
+                }
+            }
         }
 
+        if (alertas.critico.length > 0) {
+            mensagemAlerta += "<span style='color: var(--Critico)'>Alertas críticos:</span> <br>"
+            for (let item of alertas.critico) mensagemAlerta += `• ${item}<br>`
+        }
 
-        if(retorno == "alerta"){
-            return alertaCritico
-        }else if(retorno == "hardware"){
-            if(alertaCritico){
-                return hardware
-            }else{
-                return
+        if (alertas.ruim.length > 0) {
+            mensagemAlerta += "<span style='color: var(--Ruim)'>Alertas ruins:</span> <br>"
+            for (let item of alertas.ruim) mensagemAlerta += `• ${item}<br>`
+        }
+
+        if (alertas.medio.length > 0) {
+            mensagemAlerta += "<span style='color: var(--Medio)'>Alertas medios:</span> <br>"
+            for (let item of alertas.medio) mensagemAlerta += `• ${item}<br>`
+        }
+
+        if (entrouAgora) {
+            let foiCritico = (alertas.critico.length > 0 || alertas.ruim.length > 0 || alertas.medio.length > 0)
+            Swal.fire({
+                title: foiCritico ? "Alerta de performance do último registro recebido" : "Isso aí",
+                html: foiCritico ? `<p>${mensagemAlerta}</p>` : "<p style='color: var(--Bom)'>Tudo certo no último registro, continue monitorando</p>",
+                icon: foiCritico ? "error" : "success",
+                toast: true,
+                position: "top-end",
+                timer: 3000
+            })
+        } else {
+            if (alertas.critico.length > 0 || alertas.ruim.length > 0 || alertas.medio.length > 0) {
+                Swal.fire({
+                    title: "Alerta de performance",
+                    html: `<p>${mensagemAlerta}</p>`,
+                    icon: "error",
+                    toast: true,
+                    position: "top-end",
+                    timer: 3000
+                })
             }
         }
     }
 
-    async function mostrarTotalAlertas(){
+    async function mostrarTotalAlertas() {
         let diasAlertas = await puxarDiasMesComQuantidadeAlertas();
         let elementoHTML = document.querySelector("#alertasMes")
         console.log(diasAlertas)
@@ -279,33 +357,34 @@
                 label: "RAM",
                 data: diasAlertas.map(json => json.qtd_alertas_ram)
             }
-        ]}
+            ]
+        }
 
         new Chart(elementoHTML, {
-                type: "line",
-                data: data,
-                options: {
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "Dias",
-                            },
+            type: "line",
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Dias",
                         },
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: "Quantidade de alertas no dia"
-                            },
-                            ticks: {
-                                stepSize: 1
-                            },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Quantidade de alertas no dia"
+                        },
+                        ticks: {
+                            stepSize: 1
                         },
                     },
                 },
-            });
+            },
+        });
     }
 
     mostrarTotalAlertas()
