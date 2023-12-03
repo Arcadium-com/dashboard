@@ -165,7 +165,7 @@ async function puxarDadosMaquina(){
 
 async function puxarIndicadores(){
     try{
-        const response = await fetch(`/dados/puxarIndicadores/${sessionStorage.getItem("ID_MAQUINA")}`);
+        const response = await fetch(`/dados/puxarIndicadores/${sessionStorage.getItem("ID_EMPRESA")}`);
         if(response.ok){
             const data = await response.json();
             return data;
@@ -201,7 +201,7 @@ async function puxarDadoMaisRecenteTodasMaquinas(){
 
 async function puxarDiasMesComQuantidadeAlertas(){
     try{
-        const response = await fetch(`/dados/puxarDiasMesComQuantidadeAlertas/${sessionStorage.getItem("ID_EMPRESA")}`);
+        const response = await fetch(`/dados/puxarDiasMesComQuantidadeAlertas/${sessionStorage.getItem("ID_MAQUINA")}`);
         if(response.ok){
             const data = await response.json();
             return data

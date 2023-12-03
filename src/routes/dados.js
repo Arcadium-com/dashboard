@@ -26,13 +26,13 @@ router.get("/puxarDadosMaquina/:idMaquina", function(req, res){
     dadosController.puxarDadosMaquina(req, res);
 })
 
-router.get("/puxarIndicadores/:idMaquina", function(req, res){
+router.get("/puxarIndicadores/:idEmpresa", function(req, res){
     dadosController.puxarIndicadores(req, res);
 })
 router.get("/puxarDadoMaisRecente/:idMaquina", function(req, res){
     dadosController.puxarDadoMaisRecente(req, res);
 })
-router.get("/puxarDiasMesComQuantidadeAlertas/:idEmpresa", function(req, res){
+router.get("/puxarDiasMesComQuantidadeAlertas/:idMaquina", function(req, res){
     dadosController.puxarDiasMesComQuantidadeAlertas(req, res);
 })
 

@@ -104,8 +104,8 @@ function puxarDadosMaquina(req, res){
 }
 
 function puxarIndicadores(req, res){
-    var maquina = req.params.idMaquina;
-    dadosModel.puxarIndicadores(maquina)
+    var empresa = req.params.idEmpresa;
+    dadosModel.puxarIndicadores(empresa)
     .then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);
@@ -158,8 +158,8 @@ function puxarDadoMaisRecenteTodasMaquinas(req, res){
 }
 
 function puxarDiasMesComQuantidadeAlertas(req, res){
-    var empresa = req.params.idEmpresa;
-    dadosModel.puxarDiasMesComQuantidadeAlertas(empresa)
+    var maquina = req.params.idMaquina;
+    dadosModel.puxarDiasMesComQuantidadeAlertas(maquina)
     .then(function (resultado) {
         if (resultado.length > 0) {
             res.status(200).json(resultado);

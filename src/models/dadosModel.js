@@ -19,9 +19,9 @@ function puxarTotensForaServico(idEmpresa) {
 }
 
 function puxarTotemMaisAlertas(idEmpresa) {
-    var instrucao = `SELECT totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN Indicadores ON totem.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco) OR dados.USB != IndicadorUSB AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC LIMIT 1;`
+    var instrucao = `SELECT totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN empresa ON totem.fkempresa = empresa.id JOIN Indicadores ON empresa.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco) OR dados.USB != IndicadorUSB AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC LIMIT 1;`
 
-    var instrucaoSqlServer = `SELECT TOP 1 totem.id AS id_totem, COUNT(*) AS quantidade_problemas FROM totem JOIN Indicadores ON totem.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco) OR dados.USB != IndicadorUSB AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC;`
+    var instrucaoSqlServer = `SELECT TOP 1 totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN empresa ON totem.fkempresa = empresa.id JOIN Indicadores ON empresa.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB != IndicadorUSB) AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC;`
     console.log(`executando: ${instrucao}`);
     return database.executar(instrucao);
 }
@@ -59,42 +59,47 @@ async function puxarHorariosComQuantidadeAlertas(idEmpresa) {
                 FROM todos_horarios
                 LEFT JOIN dados ON DATE_FORMAT(dados.dt_hora, '%Y-%m-%d %H:00:00') = todos_horarios.hora
                 LEFT JOIN totem ON totem.id = dados.fktotem
-                LEFT JOIN indicadores ON totem.fkindicadores = indicadores.id
+                LEFT JOIN empresa on totem.fkempresa = empresa.id
+                LEFT JOIN indicadores ON empresa.fkindicadores = indicadores.id
                 WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB OR dados.dt_hora IS NULL)
                 AND DATE(todos_horarios.hora) = CURRENT_DATE
                 AND TOTEM.FKEMPRESA = ${idEmpresa}
                 GROUP BY todos_horarios.hora
                 ORDER BY todos_horarios.hora;`
             }, sqlServer: {
-                primeira: `DROP TABLE IF EXISTS todos_horarios;`,
-                segunda: `CREATE TABLE todos_horarios AS
-                    SELECT DATEADD(HOUR, 8, CAST(GETDATE() AS DATETIME)) as hora
-                    UNION SELECT DATEADD(HOUR, 9, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 10, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 11, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 12, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 13, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 14, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 15, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 16, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 17, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 18, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 19, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 20, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 21, CAST(GETDATE() AS DATETIME))
-                    UNION SELECT DATEADD(HOUR, 22, CAST(GETDATE() AS DATETIME))
-                UNION SELECT DATEADD(HOUR, 23, CAST(GETDATE() AS DATETIME));`,
-                terceira: `SELECT DATEPART(HOUR, todos_horarios.hora) as hora,
-                    COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as quantidade_problemas
-                    FROM todos_horarios
-                    LEFT JOIN dados ON CONVERT(DATETIME, FORMAT(dados.dt_hora, 'yyyy-MM-dd HH:00:00')) = todos_horarios.hora
-                    LEFT JOIN totem ON totem.id = dados.fktotem
-                    LEFT JOIN indicadores ON totem.fkindicadores = indicadores.id
-                    WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB OR dados.dt_hora IS NULL)
-                    AND CAST(todos_horarios.hora AS DATE) = CAST(GETDATE() AS DATE)
-                    AND TOTEM.FKEMPRESA = ${idEmpresa}
-                    GROUP BY DATEPART(HOUR, todos_horarios.hora)
-                ORDER BY DATEPART(HOUR, todos_horarios.hora);`
+                primeira: `IF OBJECT_ID('todos_dias_mes', 'U') IS NOT NULL
+                DROP TABLE todos_dias_mes;`,
+                segunda: `CREATE TABLE ##todos_dias_mes (
+                    dia_do_mes DATE
+                );
+                
+                INSERT INTO ##todos_dias_mes (dia_do_mes)
+                SELECT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())
+                FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
+                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
+                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
+                WHERE DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) BETWEEN DATEADD(DAY, -DAY(DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)), GETDATE()) AND GETDATE();`,
+                terceira: `SELECT
+                DAY(todos_dias_mes.dia_do_mes) as dia,
+                COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
+                COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
+                COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
+                COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
+            FROM
+                ##todos_dias_mes
+            LEFT JOIN
+                dados ON CAST(dados.dt_hora AS DATE) = todos_dias_mes.dia_do_mes
+            LEFT JOIN
+                totem ON totem.id = dados.fktotem AND totem.fkempresa = ${idEmpresa}
+            LEFT JOIN
+                empresa ON totem.fkempresa = empresa.id
+            LEFT JOIN
+                indicadores ON empresa.fkindicadores = indicadores.id
+            WHERE MONTH(todos_dias_mes.dia_do_mes) = MONTH(GETDATE())
+            GROUP BY
+                DAY(todos_dias_mes.dia_do_mes)
+            ORDER BY
+                DAY(todos_dias_mes.dia_do_mes);`
             }       
         }
         
@@ -153,7 +158,7 @@ function puxarDadosMaquina(idMaquina) {
 }
 
 function puxarIndicadores(idMaquina) {
-    var instrucao = `select LimiteCPU as "cpu", LimiteRAM as "ram", LimiteDisco as "disco", IndicadorUSB as "usb" from indicadores join totem on fkindicadores = indicadores.id where totem.id = ${idMaquina};`
+    var instrucao = `select LimiteCPU as "cpu", LimiteRAM as "ram", LimiteDisco as "disco", IndicadorUSB as "usb" from indicadores join empresa on fkindicadores = indicadores.id where empresa.id = ${idMaquina};`
 
     //igual pros dois
     console.log(`Executando ${instrucao}`);
@@ -178,7 +183,7 @@ function puxarDadoMaisRecenteTodasMaquinas(idEmpresa) {
     return database.executar(instrucao);
 }
 
-async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
+async function puxarDiasMesComQuantidadeAlertas(idMaquina) {
     const ambiente = "mysql" // ou sqlserver
     try {
         const conexoes = {
@@ -205,40 +210,50 @@ async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
                 LEFT JOIN
                 dados ON DATE(dados.dt_hora) = todos_dias_mes.dia_do_mes
                 LEFT JOIN
-                totem ON totem.id = dados.fktotem AND totem.fkempresa = ${idEmpresa}
+                totem ON totem.id = dados.fktotem AND totem.id = ${idMaquina}
                 LEFT JOIN
-                indicadores ON totem.fkindicadores = indicadores.id
+                empresa ON empresa.id = totem.fkempresa
+                LEFT JOIN
+                indicadores ON empresa.fkindicadores = indicadores.id
                 where MONTH(dia_do_mes) = MONTH(current_date)
                 GROUP BY
                 todos_dias_mes.dia_do_mes
                 order by dia_do_mes;`
             }, sqlServer: {
-                primeira: `DROP TABLE IF EXISTS todos_dias_mes`,
-                segunda: `CREATE TABLE todos_dias_mes AS
-                    SELECT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) AS dia_do_mes
-                    FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
-                    CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
-                    CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
-                    WHERE (DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())) BETWEEN DATEADD(DAY, -DAY(EOMONTH(GETDATE())) + 1, GETDATE()) AND GETDATE();`,
+                primeira: `IF OBJECT_ID('tempdb..##todos_dias_mes', 'U') IS NOT NULL
+                DROP TABLE ##todos_dias_mes;`,
+                segunda: `CREATE TABLE ##todos_dias_mes (
+                    dia_do_mes DATE
+                );
+                
+                INSERT INTO ##todos_dias_mes (dia_do_mes)
+                SELECT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())
+                FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
+                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
+                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
+                WHERE DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) BETWEEN DATEADD(DAY, -DAY(EOMONTH(GETDATE())), GETDATE()) AND GETDATE();`,
                 terceira: `SELECT
-                    DAY(todos_dias_mes.dia_do_mes) as dia,
-                    COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
-                    COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
-                    COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
-                    COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
-                    FROM
-                    todos_dias_mes
-                    LEFT JOIN
-                    dados ON CAST(dados.dt_hora AS DATE) = todos_dias_mes.dia_do_mes
-                    LEFT JOIN
-                    totem ON totem.id = dados.fktotem AND totem.fkempresa = ${idEmpresa}
-                    LEFT JOIN
-                    indicadores ON totem.fkindicadores = indicadores.id
-                    WHERE MONTH(todos_dias_mes.dia_do_mes) = MONTH(GETDATE())
-                    GROUP BY
-                    todos_dias_mes.dia_do_mes
-                    ORDER BY
-                    todos_dias_mes.dia_do_mes;`
+                DAY(todos_dias_mes.dia_do_mes) as dia,
+                COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
+                COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
+                COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
+                COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
+            FROM
+                ##todos_dias_mes
+            LEFT JOIN
+                dados ON CAST(dados.dt_hora AS DATE) = todos_dias_mes.dia_do_mes
+            LEFT JOIN
+                totem ON totem.id = dados.fktotem AND totem.id = ${idMaquina}
+            LEFT JOIN
+                empresa ON empresa.id = totem.fkempresa
+            LEFT JOIN
+                indicadores ON empresa.fkindicadores = indicadores.id
+            WHERE
+                MONTH(todos_dias_mes.dia_do_mes) = MONTH(GETDATE())
+            GROUP BY
+                DAY(todos_dias_mes.dia_do_mes)
+            ORDER BY
+                DAY(todos_dias_mes.dia_do_mes);`
             }
         }
         
@@ -283,39 +298,16 @@ async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
 
 function puxarDiaSemanaComMaisAlertas(idEmpresa){
     var instrucao = `SELECT
-        DAYNAME(d.dt_hora) AS dia_da_semana,
-        COUNT(*) / COUNT(DISTINCT DAYOFMONTH(d.dt_hora)) AS media_alertas
-    FROM
-        dados d
-    JOIN
-        totem t ON d.fktotem = t.id
-    JOIN
-        Indicadores i ON t.fkindicadores = i.id
-    WHERE
-        (
-            -- Condições para alertas críticos para CPU, RAM e Disco
-            (d.valorCPU >= i.LimiteCPU OR d.valorMemoriaRAM >= i.LimiteRAM OR d.valorDisco >= i.LimiteDisco)
-            OR
-            -- Condição para alertas críticos para USB
-            (d.USB != i.IndicadorUSB)
-        )
-        AND t.fkempresa = ${idEmpresa}-- Substitua [ID_DA_EMPRESA] pelo ID da empresa desejada
-        AND MONTH(d.dt_hora) = MONTH(NOW()) -- Filtra pelo mês atual
-        AND YEAR(d.dt_hora) = YEAR(NOW())   -- Filtra pelo ano atual
-    GROUP BY
-        DAYNAME(d.dt_hora)
-    ORDER BY
-        media_alertas DESC;`
-
-    var instrucaoSqlServer = `SELECT
-    DATENAME(WEEKDAY, d.dt_hora) AS dia_da_semana,
-    COUNT(*) * 1.0 / COUNT(DISTINCT DAY(d.dt_hora)) AS media_alertas
+    DAYNAME(d.dt_hora) AS dia_da_semana,
+    COUNT(*) / COUNT(DISTINCT DAYOFMONTH(d.dt_hora)) AS media_alertas
 FROM
     dados d
 JOIN
     totem t ON d.fktotem = t.id
 JOIN
-    Indicadores i ON t.fkindicadores = i.id
+    empresa e ON e.id = t.fkempresa
+JOIN
+    Indicadores i ON e.fkindicadores = i.id
 WHERE
     (
         -- Condições para alertas críticos para CPU, RAM e Disco
@@ -325,12 +317,40 @@ WHERE
         (d.USB != i.IndicadorUSB)
     )
     AND t.fkempresa = ${idEmpresa}-- Substitua [ID_DA_EMPRESA] pelo ID da empresa desejada
+    AND MONTH(d.dt_hora) = MONTH(NOW()) -- Filtra pelo mês atual
+    AND YEAR(d.dt_hora) = YEAR(NOW())   -- Filtra pelo ano atual
+GROUP BY
+    DAYNAME(d.dt_hora)
+ORDER BY
+    media_alertas DESC;`
+
+    var instrucaoSqlServer = `SELECT
+    DATENAME(WEEKDAY, d.dt_hora) AS dia_da_semana,
+    COUNT(*) / COUNT(DISTINCT DAY(d.dt_hora)) AS media_alertas
+FROM
+    dados d
+JOIN
+    totem t ON d.fktotem = t.id
+JOIN
+    empresa e ON e.id = t.fkempresa
+JOIN
+    Indicadores i ON e.fkindicadores = i.id
+WHERE
+    (
+        -- Condições para alertas críticos para CPU, RAM e Disco
+        (d.valorCPU >= i.LimiteCPU OR d.valorMemoriaRAM >= i.LimiteRAM OR d.valorDisco >= i.LimiteDisco)
+        OR
+        -- Condição para alertas críticos para USB
+        (d.USB != i.IndicadorUSB)
+    )
+    AND t.fkempresa = ${idEmpresa} -- Substitua [ID_DA_EMPRESA] pelo ID da empresa desejada
     AND MONTH(d.dt_hora) = MONTH(GETDATE()) -- Filtra pelo mês atual
     AND YEAR(d.dt_hora) = YEAR(GETDATE())   -- Filtra pelo ano atual
 GROUP BY
     DATENAME(WEEKDAY, d.dt_hora)
 ORDER BY
     media_alertas DESC;
+;
 `
     console.log("Executando puxarDiaSemanaComMaisAlertas")
     return database.executar(instrucao)

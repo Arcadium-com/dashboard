@@ -20,6 +20,8 @@ CREATE TABLE Empresa (
   bairro VARCHAR (200),
   cidade VARCHAR (200) NOT NULL,
   fkEstado INT,
+  fkindicadores INT, 
+  CONSTRAINT fkindic FOREIGN KEY (fkindicadores) REFERENCES Indicadores(id),
   CONSTRAINT fkEstadoConst FOREIGN KEY (fkEstado) REFERENCES Estado(id)
   );
   
@@ -60,7 +62,6 @@ versionamento VARCHAR(20) NOT NULL
 CREATE TABLE totem (
 id INT PRIMARY KEY AUTO_INCREMENT,
 fkempresa INT, CONSTRAINT fkemp FOREIGN KEY (fkempresa) REFERENCES Empresa(id),
-fkindicadores INT, CONSTRAINT fkindic FOREIGN KEY (fkindicadores) REFERENCES Indicadores(id),
 fkstatus INT, CONSTRAINT fkstat FOREIGN KEY (fkstatus) REFERENCES statusTotem(id),
 fksistemaoperacional INT, CONSTRAINT fkso FOREIGN KEY (fksistemaoperacional) REFERENCES sistemaOperacional(id),
 dtInstalacao DATE,

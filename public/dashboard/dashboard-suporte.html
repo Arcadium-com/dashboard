@@ -28,6 +28,7 @@
     <main style="gap: 4em !important;" class="Dashboard">
         <span class="TituloBW">
             <h1>VISÃO GERAL DE SUPORTE TÉCNICO </h1>
+            <h3 id="TituloMaquina"></h3>
         </span>
         <ul class="LegendaAlertas">
             <li style="background: var(--CriticoFundo); color: var(--Critico);">
@@ -94,6 +95,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../assets/js/service.js"></script>
 <script>
+    document.querySelector("#TituloMaquina").textContent += `Totem ${sessionStorage.getItem("ID_MAQUINA")}`
     let permissao = sessionStorage.getItem("PERMISSAO")
     if (permissao != 1 && permissao != 2 && permissao != 4) window.location.href = "../index.html"
     let entrouAgora = true;

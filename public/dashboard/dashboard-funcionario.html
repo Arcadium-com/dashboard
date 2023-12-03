@@ -113,7 +113,10 @@
                 arrayCompleto.push({ hora, quantidade_problemas: 0 });
             }
         }
-        arrayCompleto.push(quantidadeAlertas[0]) // insere os horarios que vieram do banco (horarios com ocorrencias)
+        console.log(quantidadeAlertas)
+        for(let item of quantidadeAlertas){
+            arrayCompleto.push(item)
+        }
         arrayCompleto.sort((a, b) => a.hora - b.hora) // ordena na ordem crescente pelo horario
         const data = {
             labels: arrayCompleto.map(json => json.hora),
@@ -122,6 +125,7 @@
                 data: arrayCompleto.map(json => json.quantidade_problemas)
             }]
         }
+        console.log(arrayCompleto)
 
         new Chart(horariosPico.html, {
             type: "line",
