@@ -31,23 +31,34 @@
             <h1>VISÃO GERAL DE FUNCIONÁRIO </h1>
         </span>
         <ul class="LegendaAlertas">
-            <li style="background: var(--CriticoFundo); color: var(--Critico);">
+            <li onclick="mostrarIndicadores('critico')" style="background: var(--CriticoFundo); color: var(--Critico);">
                 <i class="fa-solid fa-bell" ></i>
                 <b>Crítico</b>
             </li>
-            <li style="background: var(--RuimFundo); color: var(--Ruim)">
+            <li onclick="mostrarIndicadores('ruim')" style="background: var(--RuimFundo); color: var(--Ruim)">
                 <i class="fa-solid fa-bell"></i>
                 <b>Ruim</b>
             </li>
-            <li style="background: var(--MedioFundo); color: var(--Medio)">
+            <li onclick="mostrarIndicadores('medio')" style="background: var(--MedioFundo); color: var(--Medio)">
                 <i class="fa-solid fa-bell"></i>
                 <b>Médio</b>
             </li>
-            <li style="background: var(--BomFundo); color: var(--Bom)">
+            <li onclick="mostrarIndicadores('bom')" style="background: var(--BomFundo); color: var(--Bom)">
                 <i class="fa-solid fa-bell"></i>
                 <b>Bom</b>
             </li>
         </ul>
+        <div class="SecaoInformacoes">
+            <div class="Indicadores">
+                <ul class="LegendaAlertas">
+                    <li id="indicadortitulo"><b>Indicadores</b></li>
+                    <li id="indicadordisco">Disco:&nbsp;</li>
+                    <li id="indicadorram">RAM:&nbsp;</li>
+                    <li id="indicadorusb">USB:&nbsp;</li>
+                    <li id="indicadorcpu">CPU:&nbsp;</li>
+                </ul>
+            </div>
+        </div>
         <div class="ContainerGraficos">
             <div class="cards HardwareGrafico">
                 <h2>Totem com mais alertas críticos</h2>
@@ -125,8 +136,6 @@
                 data: arrayCompleto.map(json => json.quantidade_problemas)
             }]
         }
-        console.log(arrayCompleto)
-
         new Chart(horariosPico.html, {
             type: "line",
             data: data,
@@ -147,7 +156,7 @@
                             text: "Quantidade de alertas críticos por hora"
                         },
                         ticks: {
-                            stepSize: 1
+                            stepSize: 100
                         }
                     }
                 }
@@ -157,6 +166,55 @@
         setInterval(() => atualizar(), 3000);
     }
 
+    async function mostrarIndicadores(elemento = "critico") {
+        let alertas = {
+            critico: {
+                descricao: `Este alerta representa um nível crítico de utilização. Quando atinge 100%, o alerta crítico é acionado, representa que há uma situação que requer atenção imediata. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 1.0,
+                class: "indicadorCritico",
+                classTitulo: "tituloCritico"
+            }, ruim: {
+                descricao: `O alerta ruim é acionado quando atinge 90% do nível crítico. Isso indica uma situação preocupante, embora não tão urgente quanto a de nível crítico. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 0.9,
+                class: "indicadorRuim",
+                classTitulo: "tituloRuim"
+            }, medio: {
+                descricao: `O alerta médio é acionado quando atinge 80% do nível crítico. Isso sinaliza uma situação que está se aproximando do nível ruim, mas ainda não atingiu um estado crítico. <br>Indicadores de cada componente apresentados abaixo:`,
+                percentual: 0.8,
+                class: "indicadorMedio",
+                classTitulo: "tituloMedio"
+            }, bom: {
+                descricao: `O alerta bom representa uma performance boa, uma máquina em estado estável, isso é identificado quando os valores estão abaixo dos indicadores médios.`,
+                percentual: 0.8,
+                class: "indicadorBom",
+                classTitulo: "tituloBom"
+            }
+        }
+        let indicadores = await puxarIndicadores();
+        document.querySelector(`#indicadortitulo`).classList = []
+        for (let item of Object.keys(indicadores[0])) {
+            document.querySelector(`#indicador${item}`).classList = []
+            if (item != "usb") {
+                if (elemento == 'bom') {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≤ ${indicadores[0][item] * alertas[elemento].percentual}%</b>`;
+                } else {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≥ ${indicadores[0][item] * alertas[elemento].percentual}%</b>`;
+                }
+                document.querySelector(`#indicador${item}`).classList.add(alertas[elemento].class)
+                document.querySelector(`#indicadortitulo`).classList.add(alertas[elemento].classTitulo)
+            } else {
+                if (elemento == 'bom') {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} = ${indicadores[0][item]}</b>`
+                    document.querySelector(`#indicador${item}`).classList.add("indicadorBom");
+                } else {
+                    document.querySelector(`#indicador${item}`).innerHTML = `<b>${item.toUpperCase()} ≠ ${indicadores[0][item]}</b>`
+                    document.querySelector(`#indicador${item}`).classList.add("indicadorCritico");
+
+                }
+            }
+        }
+    }
+    mostrarIndicadores();
     async function atualizar() {
         let novoDado = await puxarDadoMaisRecenteTodasMaquinas();
         if (!ultimoDado) {
@@ -214,19 +272,6 @@
         if (alertas.medio.length > 0) {
             mensagemAlerta += "<span style='color: var(--Medio)'>Alertas medios:</span> <br>"
             for (let item of alertas.medio) mensagemAlerta += `• ${item}<br>`
-        }
-
-        mensagemAlerta += `<br><span style='color: var(--Critico)'>Indicadores críticos:</span> <br>`
-        for (let item of Object.keys(indicadores[0])) {
-            mensagemAlerta += `${item.toUpperCase()} || valor: ${Number(registro[0][item]).toFixed(2)}<br>`;
-        }
-        mensagemAlerta += "<br><span style='color: var(--Ruim)'>Indicadores ruins:</span> <br>"
-        for (let item of Object.keys(indicadores[0])){
-            if(item != 'usb') mensagemAlerta += `${item.toUpperCase()} || valor: ${Number(registro[0][item] * 0.9).toFixed(2)}<br>`;
-        }
-        mensagemAlerta += "<br><span style='color: var(--Medio)'>Indicadores medios:</span> <br>"
-        for (let item of Object.keys(indicadores[0])) {
-            if(item != 'usb') mensagemAlerta += `${item.toUpperCase()} || valor: ${Number(registro[0][item] * 0.8).toFixed(2)}<br>`;
         }
 
         if (entrouAgora) {

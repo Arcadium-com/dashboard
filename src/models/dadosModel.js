@@ -26,120 +26,29 @@ function puxarTotemMaisAlertas(idEmpresa) {
     return database.executar(instrucaoSqlServer);
 }
 
-async function puxarHorariosComQuantidadeAlertas(idEmpresa) {
+function puxarHorariosComQuantidadeAlertas(idEmpresa) {
     const ambiente = "sqlserver" // sqlserver
-    
-    try {
-        const conexoes = {
-            //mySql: mysql.createConnection(database.mySqlConfig),
-            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
-        }
-        const instrucoes = {
-            mySql: {
-                primeira: `DROP TEMPORARY TABLE IF EXISTS todos_horarios;`,
-                segunda: `CREATE TEMPORARY TABLE todos_horarios AS
-                SELECT CURDATE() + INTERVAL 8 HOUR as hora
-                UNION SELECT CURDATE() + INTERVAL 9 HOUR
-                UNION SELECT CURDATE() + INTERVAL 10 HOUR
-                UNION SELECT CURDATE() + INTERVAL 11 HOUR
-                UNION SELECT CURDATE() + INTERVAL 12 HOUR
-                UNION SELECT CURDATE() + INTERVAL 13 HOUR
-                UNION SELECT CURDATE() + INTERVAL 14 HOUR
-                UNION SELECT CURDATE() + INTERVAL 15 HOUR
-                UNION SELECT CURDATE() + INTERVAL 16 HOUR
-                UNION SELECT CURDATE() + INTERVAL 17 HOUR
-                UNION SELECT CURDATE() + INTERVAL 18 HOUR
-                UNION SELECT CURDATE() + INTERVAL 19 HOUR
-                UNION SELECT CURDATE() + INTERVAL 20 HOUR
-                UNION SELECT CURDATE() + INTERVAL 21 HOUR
-                UNION SELECT CURDATE() + INTERVAL 22 HOUR
-                UNION SELECT CURDATE() + INTERVAL 23 HOUR;`,
-                terceira: `SELECT HOUR(todos_horarios.hora) as hora,
-                IFNULL(SUM(CASE WHEN valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as quantidade_problemas
-                FROM todos_horarios
-                LEFT JOIN dados ON DATE_FORMAT(dados.dt_hora, '%Y-%m-%d %H:00:00') = todos_horarios.hora
-                LEFT JOIN totem ON totem.id = dados.fktotem
-                LEFT JOIN empresa on totem.fkempresa = empresa.id
-                LEFT JOIN indicadores ON empresa.fkindicadores = indicadores.id
-                WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB < IndicadorUSB OR dados.dt_hora IS NULL)
-                AND DATE(todos_horarios.hora) = CURRENT_DATE
-                AND TOTEM.FKEMPRESA = ${idEmpresa}
-                GROUP BY todos_horarios.hora
-                ORDER BY todos_horarios.hora;`
-            }, sqlServer: {
-                primeira: `IF OBJECT_ID('todos_dias_mes', 'U') IS NOT NULL
-                DROP TABLE todos_dias_mes;`,
-                segunda: `CREATE TABLE ##todos_dias_mes (
-                    dia_do_mes DATE
-                );
-                
-                INSERT INTO ##todos_dias_mes (dia_do_mes)
-                SELECT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())
-                FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
-                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
-                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
-                WHERE DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) BETWEEN DATEADD(DAY, -DAY(DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)), GETDATE()) AND GETDATE();`,
-                terceira: `SELECT
-                DAY(todos_dias_mes.dia_do_mes) as dia,
-                COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
-                COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
-                COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
-                COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
-            FROM
-                ##todos_dias_mes
-            LEFT JOIN
-                dados ON CAST(dados.dt_hora AS DATE) = todos_dias_mes.dia_do_mes
-            LEFT JOIN
-                totem ON totem.id = dados.fktotem AND totem.fkempresa = ${idEmpresa}
-            LEFT JOIN
-                empresa ON totem.fkempresa = empresa.id
-            LEFT JOIN
-                indicadores ON empresa.fkindicadores = indicadores.id
-            WHERE MONTH(todos_dias_mes.dia_do_mes) = MONTH(GETDATE())
-            GROUP BY
-                DAY(todos_dias_mes.dia_do_mes)
-            ORDER BY
-                DAY(todos_dias_mes.dia_do_mes);`
-            }       
-        }
-        
-        if(ambiente == "mysql"){
-            conexoes.mySql.connect();
-            console.log("Executando 'puxarHorariosComQuantidadeAlertas'")
-            await database.executarSemEncerrar(instrucoes.mySql.primeira, conexoes.mySql);
-            await database.executarSemEncerrar(instrucoes.mySql.segunda, conexoes.mySql);
-            let resultado = await database.executarSemEncerrar(instrucoes.mySql.terceira, conexoes.mySql);
-            
-            conexoes.mySql.end()
-            return resultado;
-        }else if(ambiente == "sqlserver"){
-            console.log("Conectando ao SQL Server...");
-            const pool = await conexoes.sqlServer.connect();
-            console.log('Conexão SQL Server estabelecida com sucesso!');
-
-            try {
-                const requisicao = pool.request();
-                const resultados1 = await requisicao.query(instrucoes.sqlServer.primeira);
-                console.log('Resultados SQL Server 1:', resultados1.recordset);
-
-                const resultados2 = await requisicao.query(instrucoes.sqlServer.segunda);
-                console.log('Resultados SQL Server 2:', resultados2.recordset);
-
-                const resultados3 = await requisicao.query(instrucoes.sqlServer.terceira);
-                console.log('Resultados SQL Server 3:', resultados3.recordset);
-
-                return resultados3.recordset;
-            } catch (error) {
-                console.error('Erro na execução de consultas SQL Server:', error);
-            } finally {
-                pool.close(); // Fechando a conexão SQL Server
-            }
-        }else{
-            console.log("AMBIENTE NAO DEFINIDO!")
-        }
-    } catch (error) {
-        console.error("Houve um erro ao realizar a consulta de 'puxarHorariosComQuantidadeAlertas': ", error)
-    }
+    var instrucao = `select hour(dt_hora) as "hora" , count(*) as "quantidade_alertas" from dados join totem on totem.id = dados.fktotem
+    join empresa on totem.fkempresa = empresa.id
+    join indicadores on indicadores.id = empresa.fkindicadores
+    where (valorDisco >= LimiteDisco or valorMemoriaRAM >= LimiteRAM or valorCPU >= LimiteCPU or dados.USB != IndicadorUSB) and date(dt_hora) = date(current_date())
+    and empresa.id = ${idEmpresa} group by hora;`
+    var instrucaoSqlServer = `SELECT
+    DATEPART(HOUR, dt_hora) AS hora,
+    COUNT(*) AS quantidade_problemas
+FROM
+    dados
+    JOIN totem ON totem.id = dados.fktotem
+    JOIN empresa ON totem.fkempresa = empresa.id
+    JOIN indicadores ON indicadores.id = empresa.fkindicadores
+WHERE
+    (valorDisco >= LimiteDisco OR valorMemoriaRAM >= LimiteRAM OR valorCPU >= LimiteCPU OR dados.USB != IndicadorUSB)
+    AND CONVERT(DATE, dt_hora) = CONVERT(DATE, GETDATE())
+    AND empresa.id = ${idEmpresa} 
+GROUP BY
+    DATEPART(HOUR, dt_hora)
+    order by hora;`
+    return database.executar(instrucaoSqlServer)
 }
 
 function puxarMaquinas(idEmpresa) {
@@ -183,117 +92,89 @@ function puxarDadoMaisRecenteTodasMaquinas(idEmpresa) {
 }
 
 async function puxarDiasMesComQuantidadeAlertas(idMaquina) {
-    const ambiente = "sqlserver" // ou sqlserver
+    const ambiente = "sqlserver";
+    const pool = new sql.ConnectionPool(database.sqlServerConfig);
+
     try {
-        const conexoes = {
-            //mySql: mysql.createConnection(database.mySqlConfig),
-            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
-        }
+        console.log("Conectando ao SQL Server...");
+        await pool.connect();
+        console.log('Conexão SQL Server estabelecida com sucesso!');
+
         const instrucoes = {
-            mySql: {
-                primeira: `DROP TEMPORARY TABLE IF EXISTS todos_dias_mes`,
-                segunda: `CREATE TEMPORARY TABLE todos_dias_mes AS
-                SELECT CURDATE() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY AS dia_do_mes
-                FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
-                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
-                CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
-                WHERE (CURDATE() - INTERVAL (a.a + (10 * b.a) + (100 * c.a)) DAY) BETWEEN CURDATE() - INTERVAL DAY(LAST_DAY(CURDATE())) DAY AND CURDATE();`,
-                terceira: `SELECT
-                day(todos_dias_mes.dia_do_mes) as dia,
-                COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
-                COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
-                COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
-                COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
-                FROM
-                todos_dias_mes
-                LEFT JOIN
-                dados ON DATE(dados.dt_hora) = todos_dias_mes.dia_do_mes
-                LEFT JOIN
-                totem ON totem.id = dados.fktotem AND totem.id = ${idMaquina}
-                LEFT JOIN
-                empresa ON empresa.id = totem.fkempresa
-                LEFT JOIN
-                indicadores ON empresa.fkindicadores = indicadores.id
-                where MONTH(dia_do_mes) = MONTH(current_date)
-                GROUP BY
-                todos_dias_mes.dia_do_mes
-                order by dia_do_mes;`
-            }, sqlServer: {
-                primeira: `IF OBJECT_ID('tempdb..##todos_dias_mes', 'U') IS NOT NULL
-                DROP TABLE ##todos_dias_mes;`,
-                segunda: `CREATE TABLE ##todos_dias_mes (
+            script1: `IF OBJECT_ID('dbo.todos_dias_mes', 'U') IS NOT NULL
+            DROP TABLE dbo.todos_dias_mes;`,
+            script2: `
+                CREATE TABLE dbo.todos_dias_mes (
                     dia_do_mes DATE
                 );
-                
-                INSERT INTO ##todos_dias_mes (dia_do_mes)
-                SELECT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())
+
+                INSERT INTO dbo.todos_dias_mes (dia_do_mes)
+                SELECT DISTINCT DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE())
                 FROM (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS a
                 CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS b
                 CROSS JOIN (SELECT 0 AS a UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) AS c
-                WHERE DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) BETWEEN DATEADD(DAY, -DAY(EOMONTH(GETDATE())), GETDATE()) AND GETDATE();`,
-                terceira: `SELECT
-                DAY(todos_dias_mes.dia_do_mes) as dia,
-                COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
-                COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
-                COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
-                COALESCE(SUM(CASE WHEN dados.USB < IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
-            FROM
-                ##todos_dias_mes
-            LEFT JOIN
-                dados ON CAST(dados.dt_hora AS DATE) = todos_dias_mes.dia_do_mes
-            LEFT JOIN
-                totem ON totem.id = dados.fktotem AND totem.id = ${idMaquina}
-            LEFT JOIN
-                empresa ON empresa.id = totem.fkempresa
-            LEFT JOIN
-                indicadores ON empresa.fkindicadores = indicadores.id
-            WHERE
-                MONTH(todos_dias_mes.dia_do_mes) = MONTH(GETDATE())
-            GROUP BY
-                DAY(todos_dias_mes.dia_do_mes)
-            ORDER BY
-                DAY(todos_dias_mes.dia_do_mes);`
-            }
-        }
-        
-        if(ambiente == "mysql"){
-            conexoes.mySql.connect();
-            console.log("Executando 'puxarHorariosComQuantidadeAlertas'")
-            await database.executarSemEncerrar(instrucoes.mySql.primeira, conexoes.mySql);
-            await database.executarSemEncerrar(instrucoes.mySql.segunda, conexoes.mySql);
-            let resultado = await database.executarSemEncerrar(instrucoes.mySql.terceira, conexoes.mySql);
-            
-            conexoes.mySql.end()
-            return resultado;
-        }else if(ambiente == "sqlserver"){
-            console.log("Conectando ao SQL Server...");
-            const pool = await conexoes.sqlServer.connect();
-            console.log('Conexão SQL Server estabelecida com sucesso!');
+                WHERE DATEADD(DAY, -(a.a + (10 * b.a) + (100 * c.a)), GETDATE()) BETWEEN DATEADD(DAY, -DAY(EOMONTH(GETDATE())), GETDATE()) AND GETDATE();
+            `,
+            script3: `
+            SELECT
+            DAY(dia_do_mes) as dia,
+            COALESCE(SUM(CASE WHEN valorCPU >= LimiteCPU THEN 1 ELSE 0 END), 0) AS qtd_alertas_cpu,
+            COALESCE(SUM(CASE WHEN valorMemoriaRAM >= LimiteRAM THEN 1 ELSE 0 END), 0) AS qtd_alertas_ram,
+            COALESCE(SUM(CASE WHEN valorDisco >= LimiteDisco THEN 1 ELSE 0 END), 0) AS qtd_alertas_disco,
+            COALESCE(SUM(CASE WHEN dados.USB != IndicadorUSB THEN 1 ELSE 0 END), 0) as qtd_alertas_usb
+                FROM
+                    dbo.todos_dias_mes
+                LEFT JOIN
+                    dados ON CAST(dados.dt_hora AS DATE) = dbo.todos_dias_mes.dia_do_mes
+                LEFT JOIN
+                    totem ON totem.id = dados.fktotem AND totem.id = ${idMaquina} -- Substitua 3 pelo valor real de @idMaquina
+                LEFT JOIN
+                    empresa ON empresa.id = totem.fkempresa
+                LEFT JOIN
+                    indicadores ON empresa.fkindicadores = indicadores.id
+                WHERE MONTH(dia_do_mes) = MONTH(GETDATE())
+                GROUP BY
+                    DAY(dia_do_mes)
+                ORDER BY
+                DAY(dia_do_mes);
+            `,
+        };
 
-            try {
-                const requisicao = pool.request();
-                const resultados1 = await requisicao.query(instrucoes.sqlServer.primeira);
-                console.log('Resultados SQL Server 1:', resultados1.recordset);
+        // Iniciar transação
+        const transaction = new sql.Transaction(pool);
 
-                const resultados2 = await requisicao.query(instrucoes.sqlServer.segunda);
-                console.log('Resultados SQL Server 2:', resultados2.recordset);
+        // Tente executar as instruções dentro da transação
+        try {
+            await transaction.begin();
 
-                const resultados3 = await requisicao.query(instrucoes.sqlServer.terceira);
-                console.log('Resultados SQL Server 3:', resultados3.recordset);
+            // Executar instrução 1
+            await transaction.request().query(instrucoes.script1);
 
-                return resultados3.recordset;
-            } catch (error) {
-                console.error('Erro na execução de consultas SQL Server:', error);
-            } finally {
-                pool.close(); // Fechando a conexão SQL Server
-            }
-        }else{
-            console.log("AMBIENTE NAO DEFINIDO!")
+            // Executar instrução 2
+            await transaction.request().query(instrucoes.script2);
+
+            // Executar instrução 3
+            const resultados = await transaction.request().query(instrucoes.script3);
+            console.log('Resultados SQL Server:', resultados.recordset);
+
+            // Commit da transação
+            await transaction.commit();
+
+            return resultados.recordset;
+        } catch (error) {
+            // Rollback em caso de erro
+            console.error("Erro ao executar transação SQL Server:", error);
+            await transaction.rollback();
         }
     } catch (error) {
-        console.error("Houve um erro ao realizar a consulta de 'puxarHorariosComQuantidadeAlertas': ", error)
+        console.error("Houve um erro ao realizar a consulta de 'puxarHorariosComQuantidadeAlertas': ", error);
+    } finally {
+        pool.close();
     }
 }
+
+
+
 
 function puxarDiaSemanaComMaisAlertas(idEmpresa){
     var instrucao = `SELECT

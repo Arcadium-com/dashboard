@@ -8,7 +8,7 @@ var sqlServerConfig = {
     user: "sa",
     password: "#arcadium123",
     pool: {
-        max: 10,
+        max: 30,
         min: 0,
         idleTimeoutMillis: 30000
     },
@@ -106,5 +106,6 @@ function executarSemEncerrar(instrucao, conexao){
 module.exports = {
     executar,
     executarSemEncerrar,
-    mySqlConfig
+    mySqlConfig,
+    sqlServerConfig
 }
