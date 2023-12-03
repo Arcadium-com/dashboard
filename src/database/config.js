@@ -5,8 +5,8 @@ var sql = require('mssql');
 var sqlServerConfig = {
     server: "localhost",
     database: "Arcadium",
-    user: "SEU_USUARIO",
-    password: "SUA_SENHA",
+    user: "sa",
+    password: "#arcadium123",
     pool: {
         max: 10,
         min: 0,
@@ -14,6 +14,7 @@ var sqlServerConfig = {
     },
     options: {
         encrypt: true, // for azure
+	    trustServerCertificate: true
     }
 }
 

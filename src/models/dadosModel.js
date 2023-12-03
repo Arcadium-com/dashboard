@@ -23,16 +23,16 @@ function puxarTotemMaisAlertas(idEmpresa) {
 
     var instrucaoSqlServer = `SELECT TOP 1 totem.id as id_totem, COUNT(*) as quantidade_problemas FROM totem JOIN empresa ON totem.fkempresa = empresa.id JOIN Indicadores ON empresa.fkindicadores = Indicadores.id JOIN dados ON dados.fktotem = totem.id WHERE (valorCPU >= LimiteCPU OR valorMemoriaRAM >= LimiteRAM OR valorDisco >= LimiteDisco OR dados.USB != IndicadorUSB) AND totem.fkempresa = ${idEmpresa} GROUP BY totem.id ORDER BY quantidade_problemas DESC;`
     console.log(`executando: ${instrucao}`);
-    return database.executar(instrucao);
+    return database.executar(instrucaoSqlServer);
 }
 
 async function puxarHorariosComQuantidadeAlertas(idEmpresa) {
-    const ambiente = "mysql" // sqlserver
+    const ambiente = "sqlserver" // sqlserver
     
     try {
         const conexoes = {
-            mySql: mysql.createConnection(database.mySqlConfig),
-            //sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
+            //mySql: mysql.createConnection(database.mySqlConfig),
+            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
         }
         const instrucoes = {
             mySql: {
@@ -153,15 +153,15 @@ function puxarDadosMaquina(idMaquina) {
     var instrucao = `select TIME(dt_hora) as hora, DATE(dt_hora) as "data", valorCPU, valorDisco, valorMemoriaRAM, USB from dados where fktotem = ${idMaquina} and DATE(dt_hora) = DATE(current_date) order by dt_hora desc limit 7`
     var instrucaoSqlServer = `SELECT TOP 7 FORMAT(dt_hora, 'HH:mm') AS hora, FORMAT(dt_hora, 'yyyy-MM-dd') AS data, valorCPU, valorDisco, valorMemoriaRAM, USB FROM dados WHERE fktotem = ${idMaquina} AND CAST(dt_hora AS DATE) = CAST(GETDATE() AS DATE) ORDER BY dt_hora DESC;`
 
-    console.log(`Executando ${instrucao}`);
-    return database.executar(instrucao);
+    console.log(`Executando puxarDadosMaquina`);
+    return database.executar(instrucaoSqlServer);
 }
 
 function puxarIndicadores(idMaquina) {
     var instrucao = `select LimiteCPU as "cpu", LimiteRAM as "ram", LimiteDisco as "disco", IndicadorUSB as "usb" from indicadores join empresa on fkindicadores = indicadores.id where empresa.id = ${idMaquina};`
 
     //igual pros dois
-    console.log(`Executando ${instrucao}`);
+    console.log(`Executando puxarIndicadores`);
     return database.executar(instrucao);
 }
 
@@ -171,7 +171,7 @@ function puxarDadoMaisRecente(idMaquina) {
     var instrucaoSqlServer = `SELECT CAST(dt_hora AS DATE) AS [data], FORMAT(dt_hora, 'HH:mm:ss') AS hora, valorCPU AS cpu, valorDisco AS disco, valorMemoriaRAM AS ram, dados.USB AS usb FROM dados JOIN totem ON fktotem = totem.id WHERE totem.id = ${idMaquina} AND CAST(dt_hora AS DATE) = CAST(GETDATE() AS DATE) ORDER BY dt_hora DESC OFFSET 0 ROWS FETCH FIRST 1 ROWS ONLY;`
 
     console.log(`Executando puxandoDadoMaisRecente`);
-    return database.executar(instrucao);
+    return database.executar(instrucaoSqlServer);
 }
 
 function puxarDadoMaisRecenteTodasMaquinas(idEmpresa) {
@@ -179,16 +179,15 @@ function puxarDadoMaisRecenteTodasMaquinas(idEmpresa) {
     console.log(`Executando puxandoDadoMaisRecenteTodasMaquinas`);
 
     var instrucaoSqlServer = `SELECT FORMAT(dt_hora, 'HH:mm:ss') AS hora, totem.id AS totem, CAST(dt_hora AS DATE) AS [data], valorCPU AS cpu, valorDisco AS disco, valorMemoriaRAM AS ram, dados.USB AS usb FROM dados JOIN totem ON fktotem = totem.id WHERE totem.fkempresa = ${idEmpresa} AND CAST(dt_hora AS DATE) = CAST(GETDATE() AS DATE) ORDER BY dt_hora DESC OFFSET 0 ROWS FETCH FIRST 1 ROWS ONLY;`
-
-    return database.executar(instrucao);
+    return database.executar(instrucaoSqlServer);
 }
 
 async function puxarDiasMesComQuantidadeAlertas(idMaquina) {
-    const ambiente = "mysql" // ou sqlserver
+    const ambiente = "sqlserver" // ou sqlserver
     try {
         const conexoes = {
-            mySql: mysql.createConnection(database.mySqlConfig),
-            //sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
+            //mySql: mysql.createConnection(database.mySqlConfig),
+            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
         }
         const instrucoes = {
             mySql: {
@@ -353,7 +352,7 @@ ORDER BY
 ;
 `
     console.log("Executando puxarDiaSemanaComMaisAlertas")
-    return database.executar(instrucao)
+    return database.executar(instrucaoSqlServer)
 }
 
 module.exports = {
