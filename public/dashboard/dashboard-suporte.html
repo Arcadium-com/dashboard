@@ -238,7 +238,6 @@
             let dadoHardware = novoDado[0][nomeHardware]
             //1o disco 2o memoria 3o usb 4o cpu
 
-            console.log(novoDado)
             if (grafico.data.labels[grafico.data.labels.length - 1] != novoLabel) {
                 grafico.data.datasets[0].data.push(dadoHardware);
                 grafico.data.labels.push(novoLabel);
@@ -278,7 +277,6 @@
         let mensagemAlerta = `${dataFormatada} ${registro[0].hora}<br>`;
 
         for (let item of Object.keys(indicadores[0])) {
-            console.log(`COMPONENTE: ${item} || REGISTRO: ${registro[0][item]} || INDICADOR: ${indicadores[0][item]}`)
             if (item != "usb") {
                 if (registro[0][item] >= indicadores[0][item]) { // alerta crítico
                     alertas.critico.push(`${item.toUpperCase()} || valor: ${registro[0][item]}`)
@@ -360,7 +358,7 @@
             ]
         }
 
-        new Chart(elementoHTML, {
+        const grafico = new Chart(elementoHTML, {
             type: "line",
             data: data,
             options: {
@@ -385,6 +383,18 @@
                 },
             },
         });
+        setInterval(()=> atualizarGraficoAlertasMes(grafico), 3000)
+    }
+
+    async function atualizarGraficoAlertasMes(grafico){
+        let diasAlertas = await puxarDiasMesComQuantidadeAlertas();
+        for(let i = 0; i < grafico.data.datasets.length; i++){
+            if(grafico.data.datasets[i].label == "CPU") grafico.data.datasets[i].data = diasAlertas.map(item => parseInt(item.qtd_alertas_cpu))
+            else if(grafico.data.datasets[i].label == "Disco") grafico.data.datasets[i].data = diasAlertas.map(item => parseInt(item.qtd_alertas_disco))
+            else if(grafico.data.datasets[i].label == "RAM") grafico.data.datasets[i].data = diasAlertas.map(item => parseInt(item.qtd_alertas_ram))
+            else if(grafico.data.datasets[i].label == "USB") grafico.data.datasets[i].data = diasAlertas.map(item => parseInt(item.qtd_alertas_usb))
+        }
+        grafico.update()
     }
 
     mostrarTotalAlertas()

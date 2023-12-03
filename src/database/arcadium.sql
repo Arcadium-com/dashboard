@@ -133,12 +133,12 @@ INSERT INTO sistemaoperacional Values
 INSERT INTO indicadores VALUES
 (null, 30.00, 30.00, 30.00, 2);
 
-INSERT INTO totem values
-(null, 1, 1, 1, 1, current_date, 8.0, 6.0, 120.0, "teste");
-
 INSERT INTO statusTotem Values
 (null,'ativo'),
 (null, 'inativo');
+
+INSERT INTO totem values
+(null, 1, 1, 1, 1, current_date, 8.0, 6.0, 120.0, "teste");
 
 -- INSERÇÕES DE DADOS NO BANCO!!!!!
 -- TODOS COMPONENTES EM ALERTA CRITICO (TOTEM É ID 1, INDICADOR É 30 PRA DISCO/RAM/CPU E 2 PRA USB)

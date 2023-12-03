@@ -32,7 +32,7 @@ async function puxarHorariosComQuantidadeAlertas(idEmpresa) {
     try {
         const conexoes = {
             mySql: mysql.createConnection(database.mySqlConfig),
-            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
+            //sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
         }
         const instrucoes = {
             mySql: {
@@ -183,7 +183,7 @@ async function puxarDiasMesComQuantidadeAlertas(idEmpresa) {
     try {
         const conexoes = {
             mySql: mysql.createConnection(database.mySqlConfig),
-            sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
+            //sqlServer: new sql.ConnectionPool(database.sqlServerConfig)
         }
         const instrucoes = {
             mySql: {
